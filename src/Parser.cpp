@@ -1,12 +1,10 @@
 #include "Parser.h"
 
+#include <algorithm>
 #include <iostream>
 #include <stack>
-#include <algorithm>
-#include <queue>
-#include <deque>
 
-Parser::Parser(TokenTable _tokenTable, std::map<unsigned int, ParseTableElement>& _parseTable, std::string _errorsFile, std::string _prioritiesFile, std::string _postfixFile) :
+Parser::Parser(DynamicTable<Token>& _tokenTable, std::map<unsigned int, ParseTableElement>& _parseTable, std::string _errorsFile, std::string _prioritiesFile, std::string _postfixFile) :
     parseTable(_parseTable),
     tokenTable(_tokenTable)
 {
@@ -43,14 +41,14 @@ void Parser::doParse()
     stack.push(0);
 
     bool nextSym = true;
-    Token token = tokenTable.popToken();
+    Token token = tokenTable.pop();
     Token prevToken = token;
 
     ParseTableElement element;
 
     int count = 0;
 
-    while (!token.isEmptyToken && id != 0)
+    while (!tokenTable.isTableEmpty() && id != 0)
     {
         element = parseTable[id];
 
@@ -105,7 +103,7 @@ void Parser::doParse()
         if (nextSym)
         {
             prevToken = token;
-            token = tokenTable.popToken();
+            token = tokenTable.pop();
 
             if (token.getTokenValue() == prevToken.getTokenValue())
             {

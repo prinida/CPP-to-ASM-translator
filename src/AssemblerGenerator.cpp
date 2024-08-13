@@ -1,13 +1,12 @@
 #include "AssemblerGenerator.h"
 
 #include <iostream>
-#include <stack>
 
 AssemblerGenerator::AssemblerGenerator(
     std::vector<std::string>& _labels,
     std::vector<std::string>& _postfix,
-    Table<std::string>& _identifiers,
-    Table<std::string>& _literals,
+    DynamicTable<std::string>& _identifiers,
+    DynamicTable<std::string>& _literals,
     std::string _asmCodeFile,
     std::string _operandsNumberFile) :
     labels(_labels),
@@ -35,7 +34,7 @@ AssemblerGenerator::AssemblerGenerator(
     }
 }
 
-void AssemblerGenerator::generateAssemblerInit()
+void AssemblerGenerator::generateAssemblerInitSection()
 {
     asmCode << ".386\n";
     asmCode << ".MODEL FLAT, STDCALL\n";
@@ -43,12 +42,12 @@ void AssemblerGenerator::generateAssemblerInit()
     asmCode << "EXTERN  ExitProcess@4: PROC\n\n";
 }
 
-void AssemblerGenerator::generateAssemblerData()
+void AssemblerGenerator::generateAssemblerDataSection()
 {
-    auto table = identifiers.getTable();
+    auto& table = identifiers.getTable();
     asmCode << ".DATA\n";
 
-    for (auto el : table)
+    for (auto& el : table)
     {
         if (el != "main")
             asmCode << el << " DD " << "?\n";
@@ -58,7 +57,7 @@ void AssemblerGenerator::generateAssemblerData()
     asmCode << "r2" << " DD " << "?\n\n";
 }
 
-void AssemblerGenerator::generateAssemblerCode()
+void AssemblerGenerator::generateAssemblerCodeSection()
 {
     makeLabelsTransitions();
 
@@ -234,6 +233,6 @@ void AssemblerGenerator::makeLabel(std::string label)
 
 void AssemblerGenerator::makeLabelsTransitions()
 {
-    for (auto label : labels)
+    for (auto& label : labels)
         labelsTransitions.push_back(label + ":");
 }

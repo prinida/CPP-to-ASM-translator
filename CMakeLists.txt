@@ -17,15 +17,10 @@ add_executable(${PROJECT_NAME}
    	src/ParseTable.cpp
    	src/ParseTableElement.h
    	src/ParseTableElement.cpp
-   	src/SourceFunction.h
-   	src/SourceFunction.cpp
    	src/StaticTable.h
-   	src/Table.h
-   	src/TableElement.h
+   	src/DynamicTable.h
    	src/Token.h
    	src/Token.cpp
-   	src/TokenTable.h
-   	src/TokenTable.cpp
    	src/Translator.h
    	src/Translator.cpp
    	src/TStaticTable.h

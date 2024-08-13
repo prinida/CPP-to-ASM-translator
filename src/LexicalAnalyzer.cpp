@@ -2,9 +2,8 @@
 
 #include <iostream>
 #include <string>
-#include <fstream>
 
-LexicalAnalyzer::LexicalAnalyzer(StaticTable<char>& _alphabet, StaticTable<std::string>& _keyWords, StaticTable<std::string>& _operators, StaticTable<std::string>& _separators, Table<std::string>& _identifiers, Table<std::string>& _literals, TokenTable& _tokenTable, std::string programFile, std::string errorsFile) :
+LexicalAnalyzer::LexicalAnalyzer(StaticTable<char>& _alphabet, StaticTable<std::string>& _keyWords, StaticTable<std::string>& _operators, StaticTable<std::string>& _separators, DynamicTable<std::string>& _identifiers, DynamicTable<std::string>& _literals, DynamicTable<Token>& _tokenTable, std::string programFile, std::string errorsFile) :
     alphabet(_alphabet),
     keyWords(_keyWords),
     operators(_operators),

@@ -1,12 +1,12 @@
 #ifndef ASSEMBLER_GENERATOR_H
 #define ASSEMBLER_GENERATOR_H
 
-#include "Table.h"
+#include "DynamicTable.h"
 
 #include <fstream>
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 // структура, для хранения операндов
 struct operand
@@ -22,10 +22,10 @@ struct operand
 class AssemblerGenerator
 {
 public:
-    AssemblerGenerator(std::vector<std::string>& _labels, std::vector<std::string>& _postfix, Table<std::string>& _identifiers, Table<std::string>& _literals, std::string _asmCodeFile, std::string _operandsNumberFile); // конструктор
-    void generateAssemblerInit(); // генерация начального блока ассемблерной программы
-    void generateAssemblerData(); // генерация блока данных ассемблерной программы
-    void generateAssemblerCode(); // генерация блока кода ассемблерной программы
+    AssemblerGenerator(std::vector<std::string>& _labels, std::vector<std::string>& _postfix, DynamicTable<std::string>& _identifiers, DynamicTable<std::string>& _literals, std::string _asmCodeFile, std::string _operandsNumberFile); // конструктор
+    void generateAssemblerInitSection(); // генерация начального блока ассемблерной программы
+    void generateAssemblerDataSection(); // генерация блока данных ассемблерной программы
+    void generateAssemblerCodeSection(); // генерация блока кода ассемблерной программы
 
     void assignmentOperator(std::string source, std::string dest); // шаблон оператора присваивания для генерации ассемблерного кода
     void addOperator(std::string operand1, std::string operand2, std::string result); // шаблон оператора сложения для генерации ассемблерного кода
@@ -44,8 +44,8 @@ private:
     std::vector<std::string>& labels; // ссылка на массив меток
     std::vector<std::string> labelsTransitions; // массив целевых меток
     std::vector<std::string>& postfix; // ссылка на массив с постфиксной записью
-    Table<std::string>& identifiers; // ссылка на таблицу идентификаторов
-    Table<std::string>& literals; // ссылка на таблицу констант
+    DynamicTable<std::string>& identifiers; // ссылка на таблицу идентификаторов
+    DynamicTable<std::string>& literals; // ссылка на таблицу констант
     std::map<std::string, int> operandsNumber; // ассоциативный массив, в котором хранится количество операндов у оператора
 };
 #endif

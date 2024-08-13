@@ -10,6 +10,7 @@ class TTable : public TStaticTable<TValue>
 public:
     virtual void add(TValue value) = 0; // добавить элемент в динамическую таблицу
     virtual void remove(TValue value) = 0; // удалить элемент из динамической таблицы
+    virtual TValue pop() = 0; //  извлечь элемент из начала таблицы (из начала списка)
 };
 
 #endif

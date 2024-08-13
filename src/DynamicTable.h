@@ -1,22 +1,20 @@
-#ifndef TABLE_H
-#define TABLE_H
+#ifndef DYNAMIC_TABLE_H
+#define DYNAMIC_TABLE_H
 
 #include "TTable.h"
 
-#include <string>
 #include <list>
-#include <iostream>
 
 // шаблонный класс динамической таблицы
 template<class TValue>
-class Table : TTable<TValue>
+class DynamicTable : TTable<TValue>
 {
 public:
     bool contains(TValue _value) override; // содержит ли динамическая таблица элемент
     void add(TValue _value) override; // добавить элемент в динамическую таблицу
     void remove(TValue _value) override; // удалить элемент из динамической таблицы
-    void printTable(std::string tableName); // распечать динамическую таблицу в консоль
-    void printContains(TValue _value); // распечать в консоль содержит ли динамическая таблица элемент
+    TValue pop() override; //  извлечь элемент из начала таблицы (из начала списка)
+    bool isTableEmpty(); // проверить пустой ли список (таблица)
     std::list<TValue>& getTable();
 
 private:
@@ -24,7 +22,7 @@ private:
 };
 
 template<class TValue>
-bool Table<TValue>::contains(TValue _value)
+bool DynamicTable<TValue>::contains(TValue _value)
 {
     bool exist = false;
     auto iterator = std::find(table.begin(), table.end(), _value);
@@ -36,13 +34,13 @@ bool Table<TValue>::contains(TValue _value)
 }
 
 template<class TValue>
-void Table<TValue>::add(TValue _value)
+void DynamicTable<TValue>::add(TValue _value)
 {
     table.push_back(_value);
 }
 
 template<class TValue>
-void Table<TValue>::remove(TValue _value)
+void DynamicTable<TValue>::remove(TValue _value)
 {
     auto iterator = std::find(table.begin(), table.end(), _value);
 
@@ -51,25 +49,29 @@ void Table<TValue>::remove(TValue _value)
 }
 
 template<class TValue>
-void Table<TValue>::printTable(std::string tableName)
+TValue DynamicTable<TValue>::pop()
 {
-    std::cout << tableName << ":\n";
+    if (!table.empty())
+    {
+        TValue element = table.front();
+        table.pop_front();
 
-    for (auto el : table)
-        std::cout << "  " << el << '\n';
+        return element;
+    }
+    else
+        return TValue();
 }
 
 template<class TValue>
-void Table<TValue>::printContains(TValue _value)
+bool DynamicTable<TValue>::isTableEmpty()
 {
-    contains(_value) ? std::cout << "yes" << '\n' : std::cout << "no" << '\n';
+    return table.empty();
 }
 
 template<class TValue>
-inline std::list<TValue>& Table<TValue>::getTable()
+std::list<TValue>& DynamicTable<TValue>::getTable()
 {
     return table;
 }
-
 
 #endif

@@ -2,12 +2,7 @@
 #define TRANSLATOR_H
 
 #include "StaticTable.h"
-#include "Table.h"
-#include "TokenTable.h"
-#include "LexicalAnalyzer.h"
-#include "ParseTable.h"
-#include "Parser.h"
-#include "AssemblerGenerator.h"
+#include "DynamicTable.h"
 
 #include <string>
 
@@ -15,16 +10,16 @@
 class Translator
 {
 public:
-    Translator(StaticTable<char>& _alphabet, 
-        StaticTable<std::string>& _keyWords, 
-        StaticTable<std::string>& _operators, 
-        StaticTable<std::string>& _separators, 
-        Table<std::string>& _identifiers, 
-        Table<std::string>& _literals, 
-        TokenTable& _tokenTable, 
-        std::string _programFileName, 
+    Translator(StaticTable<char>& _alphabet,
+        StaticTable<std::string>& _keyWords,
+        StaticTable<std::string>& _operators,
+        StaticTable<std::string>& _separators,
+        DynamicTable<std::string>& _identifiers,
+        DynamicTable<std::string>& _literals,
+        DynamicTable<Token>& _tokenTable,
+        std::string _programFileName,
         std::string _errorsFileName,
-        std::string _prioritiesFileName, 
+        std::string _prioritiesFileName,
         std::string _parseTableFileName,
         std::string _postfixFileName,
         std::string _asmCodeFileName,
@@ -38,10 +33,9 @@ private:
     StaticTable<std::string>& operators; // статическая таблица операторов языка
     StaticTable<std::string>& separators; // статическая таблица разделителей языка
 
-    Table<std::string>& identifiers; // статическая таблица идентификаторов
-    Table<std::string>& literals; // статическая таблица литеральных констант
-
-    TokenTable& tokenTable; // таблица токенов
+    DynamicTable<std::string>& identifiers; // статическая таблица идентификаторов
+    DynamicTable<std::string>& literals; // статическая таблица литеральных констант
+    DynamicTable<Token>& tokenTable; // таблица токенов
 
     std::string programFileName; // имя файла программы
     std::string errorsFileName; // имя файла ошибок

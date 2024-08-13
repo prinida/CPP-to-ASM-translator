@@ -21,7 +21,7 @@ public:
 
     std::string getTokenStringName(tokenNames name); // получить имя токена в виде строки
 
-    bool isEmptyToken = false; // пустой ли токен
+    friend bool operator==(const Token& left, const Token& right);
 
 private:
     tokenNames tokenName; // имя токена (тип токена как в enum)

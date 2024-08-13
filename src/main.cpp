@@ -1,10 +1,8 @@
-﻿#include "SourceFunction.h"
+﻿#include "DynamicTable.h"
 #include "StaticTable.h"
-#include "Table.h"
-#include "TokenTable.h"
+#include "Token.h"
 #include "Translator.h"
 
-#include <iostream>
 #include <string>
 
 int main(int argc, char** argv)
@@ -18,30 +16,27 @@ int main(int argc, char** argv)
     StaticTable<std::string> operators(executablePath + "\\res\\operators.txt");
     StaticTable<std::string> separators(executablePath + "\\res\\separators.txt");
 
-    Table<std::string> identifiers;
-    Table<std::string> literals;
-
-    TokenTable tokenTable;
+    DynamicTable<std::string> identifiers;
+    DynamicTable<std::string> literals;
+    DynamicTable<Token> tokenTable;
 
     Translator translator(
-        alphabet, 
-        keyWords, 
-        operators, 
-        separators, 
-        identifiers, 
-        literals, 
-        tokenTable, 
-        executablePath + "\\res\\program.txt", 
-        executablePath + "\\res\\errors.txt", 
-        executablePath + "\\res\\priorities.txt", 
-        executablePath + "\\res\\parseTable.txt", 
-        executablePath + "\\res\\postfix.txt", 
-        executablePath + "\\res\\assembler.txt", 
+        alphabet,
+        keyWords,
+        operators,
+        separators,
+        identifiers,
+        literals,
+        tokenTable,
+        executablePath + "\\res\\program.txt",
+        executablePath + "\\res\\errors.txt",
+        executablePath + "\\res\\priorities.txt",
+        executablePath + "\\res\\parseTable.txt",
+        executablePath + "\\res\\postfix.txt",
+        executablePath + "\\res\\assembler.txt",
         executablePath + "\\res\\operatorsOperandsNumber.txt");
 
     translator.doTranslate();
-
-    menu(alphabet, keyWords, operators, separators, identifiers, literals, tokenTable);
 
     return 0;
 }
