@@ -40,7 +40,7 @@ public:
     void makeLabelsTransitions(); // функция для генерации целевых меток ("m*:") из меток ("m*")
 
 private:
-    std::ofstream asmCode; // файл с ассемблерным кодов
+    std::ofstream asmCode; // файл с ассемблерным кодом
     std::vector<std::string>& labels; // ссылка на массив меток
     std::vector<std::string> labelsTransitions; // массив целевых меток
     std::vector<std::string>& postfix; // ссылка на массив с постфиксной записью

@@ -1,16 +1,18 @@
 #ifndef STATIC_TABLE_H
 #define STATIC_TABLE_H
 
-#include "TStaticTable.h"
+#include "TemplateStaticTable.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
 // шаблонный класс статической таблицы
 template<class TValue>
-class StaticTable : TStaticTable<TValue>
+class StaticTable : TemplateStaticTable<TValue>
 {
 public:
     StaticTable(std::string fileName); // конструктор для считывания из файла статической таблицы
@@ -27,6 +29,16 @@ StaticTable<TValue>::StaticTable(std::string fileName)
 {
     std::ifstream fin;
     fin.open(fileName);
+
+    if (!fin.is_open())
+    {
+        size_t num = fileName.find_last_of("\\");
+        std::string name = fileName.substr(num + 1, fileName.size() - num);
+
+        std::cout << "Failed to open file " << name << std::endl;
+        system("pause");
+        exit(0);
+    }
 
     TValue el;
 

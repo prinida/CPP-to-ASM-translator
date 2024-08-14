@@ -16,22 +16,24 @@ AssemblerGenerator::AssemblerGenerator(
 {
     asmCode.open(_asmCodeFile);
 
-    if (!asmCode.is_open())
-        std::cout << "Unable to open assembler code file" << std::endl;
-
     std::ifstream oprNum;
     oprNum.open(_operandsNumberFile);
 
     if (!oprNum.is_open())
-        std::cout << "Unable to open operators operands number file" << std::endl;
-    else
     {
-        std::string str;
-        int num;
+        size_t num = _operandsNumberFile.find_last_of("\\");
+        std::string name = _operandsNumberFile.substr(num + 1, _operandsNumberFile.size() - num);
 
-        while (oprNum >> str >> num)
-            operandsNumber[str] = num;
+        std::cout << "Failed to open file " << name << std::endl;
+        system("pause");
+        exit(0);
     }
+    
+    std::string str;
+    int num;
+
+    while (oprNum >> str >> num)
+        operandsNumber[str] = num;
 }
 
 void AssemblerGenerator::generateAssemblerInitSection()

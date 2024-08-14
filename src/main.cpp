@@ -3,6 +3,9 @@
 #include "Token.h"
 #include "Translator.h"
 
+#include <cstdlib>
+#include <filesystem>
+#include <iostream>
 #include <string>
 
 int main(int argc, char** argv)
@@ -10,6 +13,11 @@ int main(int argc, char** argv)
     std::string executablePath = argv[0];
     size_t num = executablePath.find_last_of("\\");
     executablePath = executablePath.substr(0, num);
+
+    std::filesystem::path resultsDirectory(executablePath + "\\results");
+
+    if (!std::filesystem::exists(resultsDirectory))
+        std::filesystem::create_directory(resultsDirectory);
 
     StaticTable<char> alphabet(executablePath + "\\res\\alphabet.txt");
     StaticTable<std::string> keyWords(executablePath + "\\res\\keyWords.txt");
@@ -29,14 +37,18 @@ int main(int argc, char** argv)
         literals,
         tokenTable,
         executablePath + "\\res\\program.txt",
-        executablePath + "\\res\\errors.txt",
+        resultsDirectory.string() + "\\errors.txt",
         executablePath + "\\res\\priorities.txt",
         executablePath + "\\res\\parseTable.txt",
-        executablePath + "\\res\\postfix.txt",
-        executablePath + "\\res\\assembler.txt",
+        resultsDirectory.string() + "\\postfix.txt",
+        resultsDirectory.string() + "\\assembler.txt",
         executablePath + "\\res\\operatorsOperandsNumber.txt");
 
     translator.doTranslate();
+
+    std::cout << translator.getResultMessage() << std::endl;
+
+    system("pause");
 
     return 0;
 }

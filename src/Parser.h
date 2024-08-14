@@ -19,9 +19,10 @@ public:
         std::string _postfixFile);
     void doParse(); // выполнить синтаксический анализ
     void makePostfix(); // сделать постфиксную запись по инфексной 
+    void errorHandling(std::string errorText, std::vector<std::string> possibleFixes); // обработка ошибки
     void printErrorMessageInFile(std::string errorText, std::vector<std::string> possibleFixes); // форматированный вывод ошибок в файл ошибок
     std::vector<std::string>& getPostfix() { return postfix; } // получить ссылку на массив с постфиксной записью
-    bool getSyntaxResult() { return success; } // получить результат работы синтаксического анализатора (есть ошибки или нет)
+    bool getResult() { return success; } // получить результат работы синтаксического анализатора (есть ошибки или нет)
     std::vector<std::string>& getLabels() { return labels; }; // получить ссылку на массив меток (для генерации ассемблерного кода)
 
 private:

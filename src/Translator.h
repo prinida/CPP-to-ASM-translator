@@ -26,6 +26,7 @@ public:
         std::string _operandsNumberFileName);
 
     void doTranslate(); // выполнить трансл€цию
+    std::string getResultMessage(); // получить сообщение с результатом работы трансл€тора
 
 private:
     StaticTable<char>& alphabet; // статическа€ таблица алфавита €зыка
@@ -44,6 +45,8 @@ private:
     std::string postfixFileName; // им€ файла постфиксной записи
     std::string asmCodeFileName; // им€ файла ассемблерного кода
     std::string operandsNumberFileName; // им€ файла, в котором хранитс€ количество операндов у оператора
+
+    std::string resultMsg; // сообщение, содержащее результат работы трансл€тора
 };
 
 #endif

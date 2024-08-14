@@ -1,13 +1,13 @@
 #ifndef DYNAMIC_TABLE_H
 #define DYNAMIC_TABLE_H
 
-#include "TTable.h"
+#include "TemplateDynamicTable.h"
 
 #include <list>
 
 // шаблонный класс динамической таблицы
 template<class TValue>
-class DynamicTable : TTable<TValue>
+class DynamicTable : TemplateDynamicTable<TValue>
 {
 public:
     bool contains(TValue _value) override; // содержит ли динамическая таблица элемент

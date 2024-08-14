@@ -8,60 +8,65 @@ ParseTable::ParseTable(std::string parseTableFileName)
     std::ifstream parseTableFile(parseTableFileName);
 
     if (!parseTableFile.is_open())
-        std::cout << "Unable to open parse table file!" << std::endl;
-    else
     {
-        ParseTableElement element;
+        size_t num = parseTableFileName.find_last_of("\\");
+        std::string name = parseTableFileName.substr(num + 1, parseTableFileName.size() - num);
 
-        unsigned int id = 0;
-        std::string terminal;
-        std::vector<std::string> terminals;
-        unsigned int jump;
-        bool accept;
-        bool stack;
-        bool error;
+        std::cout << "Failed to open file " << name << std::endl;
+        system("pause");
+        exit(0);
+    }
+    
+    ParseTableElement element;
 
-        while (parseTableFile >> terminal)
+    unsigned int id = 0;
+    std::string terminal;
+    std::vector<std::string> terminals;
+    unsigned int jump;
+    bool accept;
+    bool stack;
+    bool error;
+
+    while (parseTableFile >> terminal)
+    {
+        id++;
+        terminals.clear();
+
+        while (true)
         {
-            id++;
-            terminals.clear();
+            terminal.erase(terminal.find("'"), 1);
+            terminal.erase(terminal.find("'"), 1);
 
-            while (true)
+            if (terminal.find(",") == std::string::npos)
             {
-                terminal.erase(terminal.find("'"), 1);
-                terminal.erase(terminal.find("'"), 1);
-
-                if (terminal.find(",") == std::string::npos)
-                {
-                    terminals.push_back(terminal);
-                    break;
-                }
-                else if (terminal.size() == 1)
-                {
-                    terminals.push_back(terminal);
-                    break;
-                }
-
-                terminal.erase(terminal.find(","), 1);
                 terminals.push_back(terminal);
-
-                parseTableFile >> terminal;
+                break;
+            }
+            else if (terminal.size() == 1)
+            {
+                terminals.push_back(terminal);
+                break;
             }
 
-            parseTableFile >> jump;
-            parseTableFile >> accept;
-            parseTableFile >> stack;
-            parseTableFile >> error;
+            terminal.erase(terminal.find(","), 1);
+            terminals.push_back(terminal);
 
-            element.setTerminals(terminals);
-            element.setJump(jump);
-            element.setAccept(accept);
-            element.setStack(stack);
-            element.setError(error);
-
-            std::pair<unsigned int, ParseTableElement> pair(id, element);
-
-            parseTable.insert(pair);
+            parseTableFile >> terminal;
         }
+
+        parseTableFile >> jump;
+        parseTableFile >> accept;
+        parseTableFile >> stack;
+        parseTableFile >> error;
+
+        element.setTerminals(terminals);
+        element.setJump(jump);
+        element.setAccept(accept);
+        element.setStack(stack);
+        element.setError(error);
+
+        std::pair<unsigned int, ParseTableElement> pair(id, element);
+
+        parseTable.insert(pair);
     }
 }

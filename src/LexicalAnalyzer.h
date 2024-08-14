@@ -21,7 +21,9 @@ public:
         std::string programFile,
         std::string errorsFile);
     void doLexicalAnalysis(); // функция, при вызове который осуществляется лексический анализ
+    void errorHandling(std::string errorText); // обработка ошибки
     void printErrorMessageInFile(std::string errorText); // форматированный вывод ошибок в файл ошибок
+    bool getResult() { return success; } // получить результат работы лексического анализатора (есть ошибки или нет)
 
 private:
     void checkCloseTag(char openTag, char closeTag, char currentChar, std::string errorMsg, int currentStringNumber); // функция, нужная для проверки на закрытие всех открытых тегов
@@ -38,6 +40,8 @@ private:
 
     std::ifstream sourceFile; // файл исходной программы
     std::ofstream errors; // файл ошибок
+
+    bool success = true; // успех лексического анализа
 };
 
 #endif

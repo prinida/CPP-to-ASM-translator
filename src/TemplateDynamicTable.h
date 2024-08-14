@@ -1,11 +1,11 @@
-#ifndef TTABLE_H
-#define TTABLE_H
+#ifndef TEMPLATE_DYNAMIC_TABLE_H
+#define TEMPLATE_DYNAMIC_TABLE_H
 
-#include "TStaticTable.h"
+#include "TemplateStaticTable.h"
 
 // абстрактный шаблонный класс динамической таблицы
 template<class TValue>
-class TTable : public TStaticTable<TValue>
+class TemplateDynamicTable : public TemplateStaticTable<TValue>
 {
 public:
     virtual void add(TValue value) = 0; // добавить элемент в динамическую таблицу

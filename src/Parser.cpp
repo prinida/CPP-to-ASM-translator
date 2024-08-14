@@ -9,28 +9,26 @@ Parser::Parser(DynamicTable<Token>& _tokenTable, std::map<unsigned int, ParseTab
     tokenTable(_tokenTable)
 {
     errors.open(_errorsFile, std::ios::app);
-
-    if (!errors.is_open())
-        std::cout << "Unable to open error file" << std::endl;
-
     postfixFile.open(_postfixFile);
-
-    if (!postfixFile.is_open())
-        std::cout << "Unable to open postfix file" << std::endl;
 
     std::ifstream prFile;
     prFile.open(_prioritiesFile);
 
     if (!prFile.is_open())
-        std::cout << "Unable to open priorities file" << std::endl;
-    else
     {
-        std::string str;
-        int priority;
+        size_t num = _prioritiesFile.find_last_of("\\");
+        std::string name = _prioritiesFile.substr(num + 1, _prioritiesFile.size() - num);
 
-        while (prFile >> str >> priority)
-            priorities[str] = priority;
+        std::cout << "Failed to open file " << name << std::endl;
+        system("pause");
+        exit(0);
     }
+    
+    std::string str;
+    int priority;
+
+    while (prFile >> str >> priority)
+        priorities[str] = priority;
 }
 
 void Parser::doParse()
@@ -89,8 +87,7 @@ void Parser::doParse()
             else
                 lineNum = token.getTokenLine();
 
-            printErrorMessageInFile("Parser has detected an error in line[" + std::to_string(lineNum) + "]", element.getTerminals());
-            success = false;
+            errorHandling("Parser has detected an error in line[" + std::to_string(lineNum) + "]", element.getTerminals());
 
             break;
         }
@@ -239,6 +236,12 @@ void Parser::makePostfix()
     for (int i = 0; i < postfix.size(); i++)
         postfixFile << postfix[i] << " ";
     postfixFile << "\n";
+}
+
+void Parser::errorHandling(std::string errorText, std::vector<std::string> possibleFixes)
+{
+    success = false;
+    printErrorMessageInFile(errorText, possibleFixes);
 }
 
 void Parser::printErrorMessageInFile(std::string errorText, std::vector<std::string> possibleFixes)

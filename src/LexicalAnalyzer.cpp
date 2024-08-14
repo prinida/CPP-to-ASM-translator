@@ -15,19 +15,23 @@ LexicalAnalyzer::LexicalAnalyzer(StaticTable<char>& _alphabet, StaticTable<std::
     sourceFile.open(programFile, std::ios::binary);
 
     if (!sourceFile.is_open())
-        std::cout << "Unable to open source file" << std::endl;
+    {
+        size_t num = programFile.find_last_of("\\");
+        std::string name = programFile.substr(num + 1, programFile.size() - num);
+
+        std::cout << "Failed to open file " << name << std::endl;
+        system("pause");
+        exit(0);
+    }
 
     errors.open(errorsFile);
-
-    if (!errors.is_open())
-        std::cout << "Unable to open error file" << std::endl;
 }
 
 void LexicalAnalyzer::doLexicalAnalysis()
 {
     char c;
     sourceFile.get(c);
-    states CS = isSTART;
+    states CS = IS_START;
     Token token;
     int currentStringNumber = 1;
 
@@ -35,7 +39,7 @@ void LexicalAnalyzer::doLexicalAnalysis()
     {
         switch (CS)
         {
-        case isSTART:
+        case IS_START:
         {
             while ((c == ' ') || (c == '\t') || (c == '\n') || (c == '\r'))
             {
@@ -48,11 +52,11 @@ void LexicalAnalyzer::doLexicalAnalysis()
             if (alphabet.contains(c))
             {
                 if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || (c == '_'))
-                    CS = isIDENTIFIER;
+                    CS = IS_IDENTIFIER;
                 else if ((c >= '0') && (c <= '9'))
-                    CS = isNUMBER;
+                    CS = IS_NUMBER;
                 else
-                    CS = isSEPARATOR;
+                    CS = IS_SEPARATOR;
             }
             else if (c == '/')
             {
@@ -73,7 +77,7 @@ void LexicalAnalyzer::doLexicalAnalysis()
 
                         if (sourceFile.eof())
                         {
-                            printErrorMessageInFile("The closing tag for the comment in the line[" + std::to_string(currentStringNumber) + "] was not found");
+                            errorHandling("The closing tag for the comment in the line[" + std::to_string(currentStringNumber) + "] was not found");
                             break;
                         }
                     }
@@ -89,18 +93,18 @@ void LexicalAnalyzer::doLexicalAnalysis()
                 else
                 {
                     sourceFile.get(c);
-                    CS = isERROR;
+                    CS = IS_ERROR;
                 }
             }
             else
             {
                 sourceFile.get(c);
-                CS = isERROR;
+                CS = IS_ERROR;
             }
 
             break;
         }
-        case isIDENTIFIER:
+        case IS_IDENTIFIER:
         {
             std::string buf(1, c);
             sourceFile.get(c);
@@ -132,18 +136,18 @@ void LexicalAnalyzer::doLexicalAnalysis()
             c == '\r' ? token.setIsTokenLastInLine(true) : token.setIsTokenLastInLine(false);
 
             tokenTable.add(token);
-            CS = isSTART;
+            CS = IS_START;
 
             break;
         }
-        case isNUMBER:
+        case IS_NUMBER:
         {
             std::string buf(1, c);
             sourceFile.get(c);
 
             if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || (c == '_'))
             {
-                CS = isERROR;
+                CS = IS_ERROR;
                 sourceFile.get(c);
             }
             else
@@ -162,12 +166,12 @@ void LexicalAnalyzer::doLexicalAnalysis()
 
                 tokenTable.add(token);
                 literals.add(buf);
-                CS = isSTART;
+                CS = IS_START;
             }
 
             break;
         }
-        case isSEPARATOR:
+        case IS_SEPARATOR:
         {
             std::string str(1, c);
 
@@ -212,7 +216,7 @@ void LexicalAnalyzer::doLexicalAnalysis()
 
                 sourceFile.get(c);
 
-                CS = isSTART;
+                CS = IS_START;
             }
             else if (operators.contains(str))
             {
@@ -231,15 +235,15 @@ void LexicalAnalyzer::doLexicalAnalysis()
                 token.setTokenLine(currentStringNumber);
                 tokenTable.add(token);
 
-                CS = isSTART;
+                CS = IS_START;
             }
 
             break;
         }
-        case isERROR:
+        case IS_ERROR:
         {
-            printErrorMessageInFile("Unknown character in line[" + std::to_string(currentStringNumber) + "]");
-            CS = isSTART;
+            errorHandling("Unknown character in line[" + std::to_string(currentStringNumber) + "]");
+            CS = IS_START;
 
             break;
         }
@@ -248,6 +252,12 @@ void LexicalAnalyzer::doLexicalAnalysis()
 
     sourceFile.close();
     errors.close();
+}
+
+void LexicalAnalyzer::errorHandling(std::string errorText)
+{
+    success = false;
+    printErrorMessageInFile(errorText);
 }
 
 void LexicalAnalyzer::printErrorMessageInFile(std::string errorText)
@@ -285,7 +295,7 @@ void LexicalAnalyzer::checkCloseTag(char openTag, char closeTag, char currentCha
 
             if (sourceFile.eof())
             {
-                printErrorMessageInFile(errorMsg);
+                errorHandling(errorMsg);
                 isEof = true;
                 break;
             }
