@@ -1,6 +1,8 @@
 #include "AssemblerGenerator.h"
 #include "DynamicTable.h"
+#include "Identifier.h"
 #include "LexicalAnalyzer.h"
+#include "Literal.h"
 #include "Parser.h"
 #include "ParseTable.h"
 #include "StaticTable.h"
@@ -15,8 +17,8 @@ Translator::Translator(StaticTable<char>& _alphabet,
     StaticTable<std::string>& _keyWords,
     StaticTable<std::string>& _operators,
     StaticTable<std::string>& _separators,
-    DynamicTable<std::string>& _identifiers,
-    DynamicTable<std::string>& _literals,
+    DynamicTable<Identifier>& _identifiers,
+    DynamicTable<Literal>& _literals,
     DynamicTable<Token>& _tokenTable,
     std::string _programFileName,
     std::string _errorsFileName,

@@ -1,8 +1,10 @@
 #ifndef TRANSLATOR_H
 #define TRANSLATOR_H
 
-#include "StaticTable.h"
 #include "DynamicTable.h"
+#include "Identifier.h"
+#include "Literal.h"
+#include "StaticTable.h"
 
 #include <string>
 
@@ -14,8 +16,8 @@ public:
         StaticTable<std::string>& _keyWords,
         StaticTable<std::string>& _operators,
         StaticTable<std::string>& _separators,
-        DynamicTable<std::string>& _identifiers,
-        DynamicTable<std::string>& _literals,
+        DynamicTable<Identifier>& _identifiers,
+        DynamicTable<Literal>& _literals,
         DynamicTable<Token>& _tokenTable,
         std::string _programFileName,
         std::string _errorsFileName,
@@ -34,8 +36,8 @@ private:
     StaticTable<std::string>& operators; // статическая таблица операторов языка
     StaticTable<std::string>& separators; // статическая таблица разделителей языка
 
-    DynamicTable<std::string>& identifiers; // статическая таблица идентификаторов
-    DynamicTable<std::string>& literals; // статическая таблица литеральных констант
+    DynamicTable<Identifier>& identifiers; // статическая таблица идентификаторов
+    DynamicTable<Literal>& literals; // статическая таблица литеральных констант
     DynamicTable<Token>& tokenTable; // таблица токенов
 
     std::string programFileName; // имя файла программы

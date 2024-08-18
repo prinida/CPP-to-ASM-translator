@@ -17,8 +17,6 @@ class StaticTable : TemplateStaticTable<TValue>
 public:
     StaticTable(std::string fileName); // конструктор для считывания из файла статической таблицы
     bool contains(TValue _value) override; // содержит ли статическая таблица данный элемент
-    int getIndex(TValue _value); // получить индекс данного элемента в статической таблице
-    std::vector<TValue>& getStaticTable();
 
 private:
     std::vector<TValue> staticTable; // статическая таблица, хранится в отсортированном виде
@@ -64,35 +62,6 @@ bool StaticTable<TValue>::contains(TValue _value)
         {
             return el1 < el2;
         });
-}
-
-template<class TValue>
-int StaticTable<TValue>::getIndex(TValue _value)
-{
-    int low = 0;
-    int high = staticTable.size() - 1;
-
-    while (low <= high)
-    {
-        int mid = low + (high - low) / 2;
-
-        if (_value == staticTable[mid])
-            return mid;
-
-        if (_value > staticTable[mid])
-            low = mid + 1;
-
-        if (_value < staticTable[mid])
-            high = mid - 1;
-    }
-
-    return -1;
-}
-
-template<class TValue>
-std::vector<TValue>& StaticTable<TValue>::getStaticTable()
-{
-    return staticTable;
 }
 
 #endif

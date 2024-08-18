@@ -25,6 +25,10 @@ add_executable(${PROJECT_NAME}
    	src/Translator.cpp
    	src/TemplateStaticTable.h
    	src/TemplateDynamicTable.h
+	src/Identifier.h
+	src/Identifier.cpp
+	src/Literal.h
+	src/Literal.cpp
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

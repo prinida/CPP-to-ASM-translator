@@ -2,6 +2,8 @@
 #define LEXICAL_ANALYZER_H
 
 #include "DynamicTable.h"
+#include "Identifier.h"
+#include "Literal.h"
 #include "StaticTable.h"
 
 #include "Token.h"
@@ -15,8 +17,8 @@ public:
         StaticTable<std::string>& _keyWords,
         StaticTable<std::string>& _operators,
         StaticTable<std::string>& _separators,
-        DynamicTable<std::string>& _identifiers,
-        DynamicTable<std::string>& _literals,
+        DynamicTable<Identifier>& _identifiers,
+        DynamicTable<Literal>& _literals,
         DynamicTable<Token>& _tokenTable,
         std::string programFile,
         std::string errorsFile);
@@ -33,8 +35,8 @@ private:
     StaticTable<std::string>& operators; // статическая таблица операторов языка
     StaticTable<std::string>& separators; // статическая таблица разделителей языка
 
-    DynamicTable<std::string>& identifiers; // статическая таблица идентификаторов
-    DynamicTable<std::string>& literals; // статическая таблица литеральных констант
+    DynamicTable<Identifier>& identifiers; // статическая таблица идентификаторов
+    DynamicTable<Literal>& literals; // статическая таблица литеральных констант
 
     DynamicTable<Token>& tokenTable; // таблица токенов
 

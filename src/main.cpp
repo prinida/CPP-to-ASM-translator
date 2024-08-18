@@ -1,4 +1,7 @@
 ﻿#include "DynamicTable.h"
+#include "Identifier.h"
+#include "Literal.h"
+#include "Literal.h"
 #include "StaticTable.h"
 #include "Token.h"
 #include "Translator.h"
@@ -24,8 +27,8 @@ int main(int argc, char** argv)
     StaticTable<std::string> operators(executablePath + "\\res\\operators.txt");
     StaticTable<std::string> separators(executablePath + "\\res\\separators.txt");
 
-    DynamicTable<std::string> identifiers;
-    DynamicTable<std::string> literals;
+    DynamicTable<Identifier> identifiers;
+    DynamicTable<Literal> literals;
     DynamicTable<Token> tokenTable;
 
     Translator translator(

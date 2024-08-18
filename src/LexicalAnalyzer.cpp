@@ -1,9 +1,19 @@
+#include "DynamicTable.h"
+#include "Enums.h"
+#include "Identifier.h"
 #include "LexicalAnalyzer.h"
+#include "Literal.h"
+#include "StaticTable.h"
+#include "Token.h"
 
+#include <cstdlib>
+#include <iosfwd>
 #include <iostream>
+#include <stack>
 #include <string>
+#include <utility>
 
-LexicalAnalyzer::LexicalAnalyzer(StaticTable<char>& _alphabet, StaticTable<std::string>& _keyWords, StaticTable<std::string>& _operators, StaticTable<std::string>& _separators, DynamicTable<std::string>& _identifiers, DynamicTable<std::string>& _literals, DynamicTable<Token>& _tokenTable, std::string programFile, std::string errorsFile) :
+LexicalAnalyzer::LexicalAnalyzer(StaticTable<char>& _alphabet, StaticTable<std::string>& _keyWords, StaticTable<std::string>& _operators, StaticTable<std::string>& _separators, DynamicTable<Identifier>& _identifiers, DynamicTable<Literal>& _literals, DynamicTable<Token>& _tokenTable, std::string programFile, std::string errorsFile) :
     alphabet(_alphabet),
     keyWords(_keyWords),
     operators(_operators),
@@ -34,6 +44,8 @@ void LexicalAnalyzer::doLexicalAnalysis()
     states CS = IS_START;
     Token token;
     int currentStringNumber = 1;
+
+    std::stack<std::string> specifierStack;
 
     while (!sourceFile.eof())
     {
@@ -118,13 +130,29 @@ void LexicalAnalyzer::doLexicalAnalysis()
             }
 
             if (keyWords.contains(buf))
+            {
                 token.setTokenName(KEYWORD);
+
+                if (buf == "int")
+                    specifierStack.push(buf);
+            }
             else
             {
                 if (!identifiers.contains(buf))
                 {
                     token.setTokenName(NEW_IDENTIFIER);
-                    identifiers.add(buf);
+
+                    Identifier idn(buf);
+
+                    if (specifierStack.top() == "int")
+                        idn.setSpecifier(INT);
+
+                    if (c == '(')
+                        idn.setType(FUNCTION);
+                    else
+                        idn.setType(VARIABLE);
+
+                    identifiers.add(idn);
                 }
                 else
                     token.setTokenName(IDENTIFIER);
@@ -165,7 +193,10 @@ void LexicalAnalyzer::doLexicalAnalysis()
                 c == '\r' ? token.setIsTokenLastInLine(true) : token.setIsTokenLastInLine(false);
 
                 tokenTable.add(token);
-                literals.add(buf);
+
+                Literal lt(buf, INTEGER_LITERAL);
+                literals.add(lt);
+
                 CS = IS_START;
             }
 

@@ -2,6 +2,8 @@
 #define ASSEMBLER_GENERATOR_H
 
 #include "DynamicTable.h"
+#include "Identifier.h"
+#include "Literal.h"
 
 #include <fstream>
 #include <map>
@@ -22,7 +24,7 @@ struct operand
 class AssemblerGenerator
 {
 public:
-    AssemblerGenerator(std::vector<std::string>& _labels, std::vector<std::string>& _postfix, DynamicTable<std::string>& _identifiers, DynamicTable<std::string>& _literals, std::string _asmCodeFile, std::string _operandsNumberFile); // конструктор
+    AssemblerGenerator(std::vector<std::string>& _labels, std::vector<std::string>& _postfix, DynamicTable<Identifier>& _identifiers, DynamicTable<Literal>& _literals, std::string _asmCodeFile, std::string _operandsNumberFile); // конструктор
     void generateAssemblerInitSection(); // генерация начального блока ассемблерной программы
     void generateAssemblerDataSection(); // генерация блока данных ассемблерной программы
     void generateAssemblerCodeSection(); // генерация блока кода ассемблерной программы
@@ -44,8 +46,8 @@ private:
     std::vector<std::string>& labels; // ссылка на массив меток
     std::vector<std::string> labelsTransitions; // массив целевых меток
     std::vector<std::string>& postfix; // ссылка на массив с постфиксной записью
-    DynamicTable<std::string>& identifiers; // ссылка на таблицу идентификаторов
-    DynamicTable<std::string>& literals; // ссылка на таблицу констант
+    DynamicTable<Identifier>& identifiers; // ссылка на таблицу идентификаторов
+    DynamicTable<Literal>& literals; // ссылка на таблицу констант
     std::map<std::string, int> operandsNumber; // ассоциативный массив, в котором хранится количество операндов у оператора
 };
 #endif

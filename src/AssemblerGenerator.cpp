@@ -1,12 +1,19 @@
 #include "AssemblerGenerator.h"
+#include "DynamicTable.h"
+#include "Identifier.h"
+#include "Literal.h"
 
+#include <cstdlib>
+#include <iosfwd>
 #include <iostream>
+#include <string>
+#include <vector>
 
 AssemblerGenerator::AssemblerGenerator(
     std::vector<std::string>& _labels,
     std::vector<std::string>& _postfix,
-    DynamicTable<std::string>& _identifiers,
-    DynamicTable<std::string>& _literals,
+    DynamicTable<Identifier>& _identifiers,
+    DynamicTable<Literal>& _literals,
     std::string _asmCodeFile,
     std::string _operandsNumberFile) :
     labels(_labels),
@@ -28,7 +35,7 @@ AssemblerGenerator::AssemblerGenerator(
         system("pause");
         exit(0);
     }
-    
+
     std::string str;
     int num;
 
@@ -51,8 +58,8 @@ void AssemblerGenerator::generateAssemblerDataSection()
 
     for (auto& el : table)
     {
-        if (el != "main")
-            asmCode << el << " DD " << "?\n";
+        if (el.getType() == VARIABLE && el.getSpecifier() == INT)
+            asmCode << el.getName() << " DD " << "?\n";
     }
 
     asmCode << "r1" << " DD " << "?\n";
