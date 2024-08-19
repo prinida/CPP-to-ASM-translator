@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
+#include <iosfwd>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,10 +17,10 @@ class StaticTable : TemplateStaticTable<TValue>
 {
 public:
     StaticTable(std::string fileName); // конструктор для считывания из файла статической таблицы
-    bool contains(TValue _value) override; // содержит ли статическая таблица данный элемент
+    bool contains(TValue value) override; // содержит ли статическая таблица данный элемент
 
 private:
-    std::vector<TValue> staticTable; // статическая таблица, хранится в отсортированном виде
+    std::vector<TValue> m_staticTable; // статическая таблица, хранится в отсортированном виде
 };
 
 template<class TValue>
@@ -38,12 +39,12 @@ StaticTable<TValue>::StaticTable(std::string fileName)
         exit(0);
     }
 
-    TValue el;
+    TValue el{};
 
     while (fin >> el)
-        staticTable.push_back(el);
+        m_staticTable.push_back(el);
 
-    std::sort(staticTable.begin(), staticTable.end(),
+    std::sort(m_staticTable.begin(), m_staticTable.end(),
         [](const TValue& el1, const TValue& el2)
         {
             return el1 < el2;
@@ -53,11 +54,11 @@ StaticTable<TValue>::StaticTable(std::string fileName)
 }
 
 template<class TValue>
-bool StaticTable<TValue>::contains(TValue _value)
+bool StaticTable<TValue>::contains(TValue value)
 {
-    TValue searchEl(_value);
+    TValue searchEl(value);
 
-    return std::binary_search(staticTable.begin(), staticTable.end(), searchEl,
+    return std::binary_search(m_staticTable.begin(), m_staticTable.end(), searchEl,
         [](const TValue& el1, const TValue& el2)
         {
             return el1 < el2;

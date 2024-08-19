@@ -5,6 +5,7 @@
 #include "Identifier.h"
 #include "Literal.h"
 #include "StaticTable.h"
+#include "Token.h"
 
 #include <string>
 
@@ -12,43 +13,44 @@
 class Translator
 {
 public:
-    Translator(StaticTable<char>& _alphabet,
-        StaticTable<std::string>& _keyWords,
-        StaticTable<std::string>& _operators,
-        StaticTable<std::string>& _separators,
-        DynamicTable<Identifier>& _identifiers,
-        DynamicTable<Literal>& _literals,
-        DynamicTable<Token>& _tokenTable,
-        std::string _programFileName,
-        std::string _errorsFileName,
-        std::string _prioritiesFileName,
-        std::string _parseTableFileName,
-        std::string _postfixFileName,
-        std::string _asmCodeFileName,
-        std::string _operandsNumberFileName);
+    Translator(StaticTable<char>& alphabet,
+        StaticTable<std::string>& keyWords,
+        StaticTable<std::string>& operators,
+        StaticTable<std::string>& separators,
+        DynamicTable<Identifier>& identifiers,
+        DynamicTable<Literal>& literals,
+        DynamicTable<Token>& tokenTable,
+        std::string programFileName,
+        std::string errorsFileName,
+        std::string prioritiesFileName,
+        std::string parseTableFileName,
+        std::string postfixFileName,
+        std::string asmCodeFileName,
+        std::string operandsNumberFileName);
 
     void doTranslate(); // выполнить трансляцию
-    std::string getResultMessage(); // получить сообщение с результатом работы транслятора
+
+    std::string getResultMessage() { return m_resultMsg; }; // получить сообщение с результатом работы транслятора
 
 private:
-    StaticTable<char>& alphabet; // статическая таблица алфавита языка
-    StaticTable<std::string>& keyWords; // статическая таблица ключевых слов языка
-    StaticTable<std::string>& operators; // статическая таблица операторов языка
-    StaticTable<std::string>& separators; // статическая таблица разделителей языка
+    StaticTable<char>& m_alphabet; // статическая таблица алфавита языка
+    StaticTable<std::string>& m_keyWords; // статическая таблица ключевых слов языка
+    StaticTable<std::string>& m_operators; // статическая таблица операторов языка
+    StaticTable<std::string>& m_separators; // статическая таблица разделителей языка
 
-    DynamicTable<Identifier>& identifiers; // статическая таблица идентификаторов
-    DynamicTable<Literal>& literals; // статическая таблица литеральных констант
-    DynamicTable<Token>& tokenTable; // таблица токенов
+    DynamicTable<Identifier>& m_identifiers; // статическая таблица идентификаторов
+    DynamicTable<Literal>& m_literals; // статическая таблица литеральных констант
+    DynamicTable<Token>& m_tokenTable; // таблица токенов
 
-    std::string programFileName; // имя файла программы
-    std::string errorsFileName; // имя файла ошибок
-    std::string prioritiesFileName; // имя файла приоритетов операторов и ключевых слов
-    std::string parseTableFileName; // имя файла таблицы разбора
-    std::string postfixFileName; // имя файла постфиксной записи
-    std::string asmCodeFileName; // имя файла ассемблерного кода
-    std::string operandsNumberFileName; // имя файла, в котором хранится количество операндов у оператора
+    std::string m_programFileName; // имя файла программы
+    std::string m_errorsFileName; // имя файла ошибок
+    std::string m_prioritiesFileName; // имя файла приоритетов операторов и ключевых слов
+    std::string m_parseTableFileName; // имя файла таблицы разбора
+    std::string m_postfixFileName; // имя файла постфиксной записи
+    std::string m_asmCodeFileName; // имя файла ассемблерного кода
+    std::string m_operandsNumberFileName; // имя файла, в котором хранится количество операндов у оператора
 
-    std::string resultMsg; // сообщение, содержащее результат работы транслятора
+    std::string m_resultMsg; // сообщение, содержащее результат работы транслятора
 };
 
 #endif

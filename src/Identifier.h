@@ -5,24 +5,26 @@
 
 #include <string>
 
+// identifier class (variables, functions etc.)
 class Identifier
 {
 public:
-    Identifier(std::string _name = "", typeSpecifiers _specifier = INT, identifiersTypes _type = VARIABLE);
+    Identifier(std::string name = "", typeSpecifiers specifier = INT, identifiersTypes type = VARIABLE) : m_name(name), m_specifier(specifier), m_type(type) {};
 
-    void setName(std::string newName);
-    void setType(identifiersTypes newType);
-    void setSpecifier(typeSpecifiers newSpecifier);
+    void setName(std::string name) { m_name = name; };
+    void setType(identifiersTypes type) { m_type = type; };
+    void setSpecifier(typeSpecifiers specifier) { m_specifier = specifier; };
 
-    std::string getName();
-    identifiersTypes getType();
-    typeSpecifiers getSpecifier();
+    std::string getName() { return m_name; };
+    identifiersTypes getType() { return m_type; };
+    typeSpecifiers getSpecifier() { return m_specifier; };
 
-    friend bool operator==(const Identifier& left, const Identifier& right);
+    friend bool operator==(const Identifier& left, const Identifier& right) { return left.m_name == right.m_name; };
+
 private:
-    std::string name;
-    identifiersTypes type;
-    typeSpecifiers specifier;
+    std::string m_name; // identifier's name
+    typeSpecifiers m_specifier; // identifier's specifier
+    identifiersTypes m_type; // identifier's type
 };
 
 #endif

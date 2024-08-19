@@ -5,22 +5,23 @@
 
 #include <string>
 
+// literal class (integer literals etc.)
 class Literal
 {
 public:
-    Literal(std::string _name = "", literalsType _type = INTEGER_LITERAL);
+    Literal(std::string name = "", literalsType type = INTEGER_LITERAL) : m_name(name), m_type(type) {};
 
-    void setName(std::string newName);
-    void setType(literalsType newType);
+    void setName(std::string name) { m_name = name; };
+    void setType(literalsType type) { m_type = type; };
 
-    std::string getName();
-    literalsType getType();
+    std::string getName() { return m_name; };
+    literalsType getType() { return  m_type; };
 
-    friend bool operator == (const Literal& left, const Literal& right);
+    friend bool operator == (const Literal& left, const Literal& right) { return left.m_name == right.m_name; };
 
 private:
-    std::string name;
-    literalsType type;
+    std::string m_name; // literal's name
+    literalsType m_type; // literal's type
 };
 
 #endif

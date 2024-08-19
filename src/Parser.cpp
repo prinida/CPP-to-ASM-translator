@@ -1,34 +1,48 @@
+#include "DynamicTable.h"
 #include "Parser.h"
+#include "ParseTableElement.h"
+#include "Token.h"
 
 #include <algorithm>
+#include <cstdlib>
+#include <fstream>
+#include <iosfwd>
 #include <iostream>
+#include <map>
 #include <stack>
+#include <string>
+#include <vector>
 
-Parser::Parser(DynamicTable<Token>& _tokenTable, std::map<unsigned int, ParseTableElement>& _parseTable, std::string _errorsFile, std::string _prioritiesFile, std::string _postfixFile) :
-    parseTable(_parseTable),
-    tokenTable(_tokenTable)
+Parser::Parser(
+    DynamicTable<Token>& tokenTable,
+    std::map<unsigned int, ParseTableElement>& parseTable,
+    std::string errorsFile,
+    std::string prioritiesFile,
+    std::string postfixFile) :
+    m_parseTable(parseTable),
+    m_tokenTable(tokenTable)
 {
-    errors.open(_errorsFile, std::ios::app);
-    postfixFile.open(_postfixFile);
+    m_errors.open(errorsFile, std::ios::app);
+    m_postfixFile.open(postfixFile);
 
     std::ifstream prFile;
-    prFile.open(_prioritiesFile);
+    prFile.open(prioritiesFile);
 
     if (!prFile.is_open())
     {
-        size_t num = _prioritiesFile.find_last_of("\\");
-        std::string name = _prioritiesFile.substr(num + 1, _prioritiesFile.size() - num);
+        size_t num = prioritiesFile.find_last_of("\\");
+        std::string name = prioritiesFile.substr(num + 1, prioritiesFile.size() - num);
 
         std::cout << "Failed to open file " << name << std::endl;
         system("pause");
         exit(0);
     }
-    
+
     std::string str;
     int priority;
 
     while (prFile >> str >> priority)
-        priorities[str] = priority;
+        m_priorities[str] = priority;
 }
 
 void Parser::doParse()
@@ -39,26 +53,26 @@ void Parser::doParse()
     stack.push(0);
 
     bool nextSym = true;
-    Token token = tokenTable.pop();
+    Token token = m_tokenTable.pop();
     Token prevToken = token;
 
     ParseTableElement element;
 
     int count = 0;
 
-    while (!tokenTable.isTableEmpty() && id != 0)
+    while (!m_tokenTable.isTableEmpty() && id != 0)
     {
-        element = parseTable[id];
+        element = m_parseTable[id];
 
         std::vector<std::string> terms = element.getTerminals();
 
         if (terms.size() == 1)
             for (int k = 0; k < terms.size(); k++)
             {
-                if ((terms[k] == token.getTokenValue() || terms[k] == token.getTokenStringName(token.getTokenName())))
+                if ((terms[k] == token.getValue() || terms[k] == token.getStringName(token.getName())))
                 {
-                    infix.push_back(terms[k]);
-                    infixValue.push_back(token.getTokenValue());
+                    m_infix.push_back(terms[k]);
+                    m_infixValue.push_back(token.getValue());
                 }
             }
 
@@ -82,10 +96,10 @@ void Parser::doParse()
         else if (element.getError())
         {
             unsigned int lineNum;
-            if (prevToken.getIsTokenLastInLine())
-                lineNum = prevToken.getTokenLine();
+            if (prevToken.getIsLastInLine())
+                lineNum = prevToken.getLine();
             else
-                lineNum = token.getTokenLine();
+                lineNum = token.getLine();
 
             errorHandling("Parser has detected an error in line[" + std::to_string(lineNum) + "]", element.getTerminals());
 
@@ -100,36 +114,36 @@ void Parser::doParse()
         if (nextSym)
         {
             prevToken = token;
-            token = tokenTable.pop();
+            token = m_tokenTable.pop();
 
-            if (token.getTokenValue() == prevToken.getTokenValue())
+            if (token.getValue() == prevToken.getValue())
             {
-                infix.push_back("&&&");
-                infixValue.push_back("&&&");
+                m_infix.push_back("&&&");
+                m_infixValue.push_back("&&&");
             }
         }
     }
 
-    infix.erase(std::unique(infix.begin(), infix.end()), infix.end());
-    infixValue.erase(std::unique(infixValue.begin(), infixValue.end()), infixValue.end());
+    m_infix.erase(std::unique(m_infix.begin(), m_infix.end()), m_infix.end());
+    m_infixValue.erase(std::unique(m_infixValue.begin(), m_infixValue.end()), m_infixValue.end());
 
-    auto iterInfix = std::find(infix.begin(), infix.end(), "&&&");
-    auto iterInfixValue = std::find(infixValue.begin(), infixValue.end(), "&&&");
+    auto iterInfix = std::find(m_infix.begin(), m_infix.end(), "&&&");
+    auto iterInfixValue = std::find(m_infixValue.begin(), m_infixValue.end(), "&&&");
 
-    while (iterInfix != infix.end())
+    while (iterInfix != m_infix.end())
     {
-        infix.erase(iterInfix);
-        infixValue.erase(iterInfixValue);
+        m_infix.erase(iterInfix);
+        m_infixValue.erase(iterInfixValue);
 
-        iterInfix = std::find(infix.begin(), infix.end(), "&&&");
-        iterInfixValue = std::find(infixValue.begin(), infixValue.end(), "&&&");
+        iterInfix = std::find(m_infix.begin(), m_infix.end(), "&&&");
+        iterInfixValue = std::find(m_infixValue.begin(), m_infixValue.end(), "&&&");
     }
 
-    if (success)
+    if (m_success)
         makePostfix();
 
-    errors.close();
-    postfixFile.close();
+    m_errors.close();
+    m_postfixFile.close();
 }
 
 void Parser::makePostfix()
@@ -139,18 +153,18 @@ void Parser::makePostfix()
     std::stack<std::string> stack;
     std::string curr;
 
-    for (int k = 4; k < infix.size(); k++)
+    for (int k = 4; k < m_infix.size(); k++)
     {
-        curr = infix[k];
+        curr = m_infix[k];
 
         if (curr == "CONSTANT" || curr == "IDENTIFIER" || curr == "NEW_IDENTIFIER")
-            postfix.push_back(infixValue[k]);
+            m_postfix.push_back(m_infixValue[k]);
 
-        else if (priorities.find(curr) != priorities.end())
+        else if (m_priorities.find(curr) != m_priorities.end())
         {
-            while (stack.size() != 0 && priorities[curr] >= priorities[stack.top()] && stack.top() != "(")
+            while (stack.size() != 0 && m_priorities[curr] >= m_priorities[stack.top()] && stack.top() != "(")
             {
-                postfix.push_back(stack.top());
+                m_postfix.push_back(stack.top());
                 stack.pop();
             }
 
@@ -158,13 +172,13 @@ void Parser::makePostfix()
 
             if (stack.top() == "else")
             {
-                postfix.push_back(stack.top());
+                m_postfix.push_back(stack.top());
                 stack.pop();
 
                 std::string lastLabel = labelStack.top();
                 labelStack.pop();
 
-                postfix.push_back(labelStack.top() + ":");
+                m_postfix.push_back(labelStack.top() + ":");
                 labelStack.pop();
 
                 labelStack.push(lastLabel);
@@ -176,12 +190,12 @@ void Parser::makePostfix()
         {
             while (stack.top() != "(")
             {
-                postfix.push_back(stack.top());
+                m_postfix.push_back(stack.top());
 
                 if (stack.top() == "==" || stack.top() == "!=" || stack.top() == "<")
                 {
-                    labels.push_back("m" + std::to_string(labelNum));
-                    postfix.push_back("m" + std::to_string(labelNum));
+                    m_labels.push_back("m" + std::to_string(labelNum));
+                    m_postfix.push_back("m" + std::to_string(labelNum));
                     labelStack.push("m" + std::to_string(labelNum));
                     labelNum++;
                 }
@@ -195,23 +209,23 @@ void Parser::makePostfix()
 
                 if (stack.top() == "if")
                 {
-                    postfix.push_back(stack.top());
+                    m_postfix.push_back(stack.top());
                     stack.pop();
                 }
             }
         }
         else if (curr == "}")
         {
-            if (k < infix.size() - 1 && infix[k + 1] == "else")
+            if (k < m_infix.size() - 1 && m_infix[k + 1] == "else")
             {
-                labels.push_back("m" + std::to_string(labelNum));
-                postfix.push_back("m" + std::to_string(labelNum));
+                m_labels.push_back("m" + std::to_string(labelNum));
+                m_postfix.push_back("m" + std::to_string(labelNum));
                 labelStack.push("m" + std::to_string(labelNum));
                 labelNum++;
             }
             else if (labelStack.size() != 0)
             {
-                postfix.push_back(labelStack.top() + ":");
+                m_postfix.push_back(labelStack.top() + ":");
                 labelStack.pop();
             }
         }
@@ -219,7 +233,7 @@ void Parser::makePostfix()
         {
             while (stack.size() != 0)
             {
-                postfix.push_back(stack.top());
+                m_postfix.push_back(stack.top());
                 stack.pop();
             }
         }
@@ -227,20 +241,20 @@ void Parser::makePostfix()
 
     while (stack.size() != 0)
     {
-        postfix.push_back(stack.top());
+        m_postfix.push_back(stack.top());
         stack.pop();
     }
 
-    postfix.push_back("[int main()]");
+    m_postfix.push_back("[int main()]");
 
-    for (int i = 0; i < postfix.size(); i++)
-        postfixFile << postfix[i] << " ";
-    postfixFile << "\n";
+    for (int i = 0; i < m_postfix.size(); i++)
+        m_postfixFile << m_postfix[i] << " ";
+    m_postfixFile << "\n";
 }
 
 void Parser::errorHandling(std::string errorText, std::vector<std::string> possibleFixes)
 {
-    success = false;
+    m_success = false;
     printErrorMessageInFile(errorText, possibleFixes);
 }
 
@@ -261,5 +275,5 @@ void Parser::printErrorMessageInFile(std::string errorText, std::vector<std::str
     errorMsg += "--------------------------------";
     errorMsg += "\n";
 
-    errors << errorMsg;
+    m_errors << errorMsg;
 }

@@ -13,18 +13,28 @@
 #include <string>
 #include <utility>
 
-LexicalAnalyzer::LexicalAnalyzer(StaticTable<char>& _alphabet, StaticTable<std::string>& _keyWords, StaticTable<std::string>& _operators, StaticTable<std::string>& _separators, DynamicTable<Identifier>& _identifiers, DynamicTable<Literal>& _literals, DynamicTable<Token>& _tokenTable, std::string programFile, std::string errorsFile) :
-    alphabet(_alphabet),
-    keyWords(_keyWords),
-    operators(_operators),
-    separators(_separators),
-    identifiers(_identifiers),
-    literals(_literals),
-    tokenTable(_tokenTable)
+LexicalAnalyzer::LexicalAnalyzer(
+    StaticTable<char>& alphabet, 
+    StaticTable<std::string>& keyWords, 
+    StaticTable<std::string>& operators, 
+    StaticTable<std::string>& separators, 
+    DynamicTable<Identifier>& identifiers, 
+    DynamicTable<Literal>& literals, 
+    DynamicTable<Token>& tokenTable, 
+    std::string programFile, 
+    std::string errorsFile) :
+    m_alphabet(alphabet),
+    m_keyWords(keyWords),
+    m_operators(operators),
+    m_separators(separators),
+    m_identifiers(identifiers),
+    m_literals(literals),
+    m_tokenTable(tokenTable)
 {
-    sourceFile.open(programFile, std::ios::binary);
+    m_sourceFile.open(programFile, std::ios::binary);
 
-    if (!sourceFile.is_open())
+    // checking the source program file is opened
+    if (!m_sourceFile.is_open())
     {
         size_t num = programFile.find_last_of("\\");
         std::string name = programFile.substr(num + 1, programFile.size() - num);
@@ -34,260 +44,261 @@ LexicalAnalyzer::LexicalAnalyzer(StaticTable<char>& _alphabet, StaticTable<std::
         exit(0);
     }
 
-    errors.open(errorsFile);
+    m_errors.open(errorsFile);
 }
 
 void LexicalAnalyzer::doLexicalAnalysis()
 {
     char c;
-    sourceFile.get(c);
+    m_sourceFile.get(c);
     states CS = IS_START;
     Token token;
-    int currentStringNumber = 1;
+    int currentLineNumber = 1; // number of line in the source program file
 
-    std::stack<std::string> specifierStack;
+    std::stack<std::string> specifierStack; // stack for type's specifiers for identifiers
 
-    while (!sourceFile.eof())
+    // finite state machine that goes from the beginning to the end of the source file
+    while (!m_sourceFile.eof())
     {
         switch (CS)
         {
-        case IS_START:
-        {
-            while ((c == ' ') || (c == '\t') || (c == '\n') || (c == '\r'))
+            case IS_START:
             {
-                if (c == '\n')
-                    currentStringNumber++;
-
-                sourceFile.get(c);
-            }
-
-            if (alphabet.contains(c))
-            {
-                if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || (c == '_'))
-                    CS = IS_IDENTIFIER;
-                else if ((c >= '0') && (c <= '9'))
-                    CS = IS_NUMBER;
-                else
-                    CS = IS_SEPARATOR;
-            }
-            else if (c == '/')
-            {
-                sourceFile.get(c);
-                if (c == '*')
+                while ((c == ' ') || (c == '\t') || (c == '\n') || (c == '\r'))
                 {
-                    std::string str;
-                    sourceFile.get(c);
-                    str += c;
-                    sourceFile.get(c);
-                    str += c;
+                    if (c == '\n')
+                        currentLineNumber++;
 
-                    while (str != "*/")
-                    {
-                        sourceFile.get(c);
-                        std::swap(str[0], str[1]);
-                        str[1] = c;
+                    m_sourceFile.get(c);
+                }
 
-                        if (sourceFile.eof())
-                        {
-                            errorHandling("The closing tag for the comment in the line[" + std::to_string(currentStringNumber) + "] was not found");
-                            break;
-                        }
-                    }
-                    sourceFile.get(c);
+                if (m_alphabet.contains(c))
+                {
+                    if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || (c == '_'))
+                        CS = IS_IDENTIFIER;
+                    else if ((c >= '0') && (c <= '9'))
+                        CS = IS_NUMBER;
+                    else
+                        CS = IS_SEPARATOR;
                 }
                 else if (c == '/')
                 {
-                    while (c != '\n')
-                        sourceFile.get(c);
-                    currentStringNumber++;
-                    sourceFile.get(c);
+                    m_sourceFile.get(c);
+                    if (c == '*')
+                    {
+                        std::string str;
+                        m_sourceFile.get(c);
+                        str += c;
+                        m_sourceFile.get(c);
+                        str += c;
+
+                        while (str != "*/")
+                        {
+                            m_sourceFile.get(c);
+                            std::swap(str[0], str[1]);
+                            str[1] = c;
+
+                            if (m_sourceFile.eof())
+                            {
+                                errorHandling("The closing tag for the comment in the line[" + std::to_string(currentLineNumber) + "] was not found");
+                                break;
+                            }
+                        }
+                        m_sourceFile.get(c);
+                    }
+                    else if (c == '/')
+                    {
+                        while (c != '\n')
+                            m_sourceFile.get(c);
+                        currentLineNumber++;
+                        m_sourceFile.get(c);
+                    }
+                    else
+                    {
+                        m_sourceFile.get(c);
+                        CS = IS_ERROR;
+                    }
                 }
                 else
                 {
-                    sourceFile.get(c);
+                    m_sourceFile.get(c);
                     CS = IS_ERROR;
                 }
+
+                break;
             }
-            else
+            case IS_IDENTIFIER:
             {
-                sourceFile.get(c);
-                CS = IS_ERROR;
-            }
+                std::string buf(1, c);
+                m_sourceFile.get(c);
 
-            break;
-        }
-        case IS_IDENTIFIER:
-        {
-            std::string buf(1, c);
-            sourceFile.get(c);
-
-            while (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') &&
-                (c <= 'z')) || ((c >= '0') && (c <= '9')) ||
-                (c == '_'))
-            {
-                buf += c;
-                sourceFile.get(c);
-            }
-
-            if (keyWords.contains(buf))
-            {
-                token.setTokenName(KEYWORD);
-
-                if (buf == "int")
-                    specifierStack.push(buf);
-            }
-            else
-            {
-                if (!identifiers.contains(buf))
-                {
-                    token.setTokenName(NEW_IDENTIFIER);
-
-                    Identifier idn(buf);
-
-                    if (specifierStack.top() == "int")
-                        idn.setSpecifier(INT);
-
-                    if (c == '(')
-                        idn.setType(FUNCTION);
-                    else
-                        idn.setType(VARIABLE);
-
-                    identifiers.add(idn);
-                }
-                else
-                    token.setTokenName(IDENTIFIER);
-            }
-
-            token.setTokenValue(buf);
-            token.setTokenLine(currentStringNumber);
-
-            c == '\r' ? token.setIsTokenLastInLine(true) : token.setIsTokenLastInLine(false);
-
-            tokenTable.add(token);
-            CS = IS_START;
-
-            break;
-        }
-        case IS_NUMBER:
-        {
-            std::string buf(1, c);
-            sourceFile.get(c);
-
-            if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || (c == '_'))
-            {
-                CS = IS_ERROR;
-                sourceFile.get(c);
-            }
-            else
-            {
-                while ((c >= '0') && (c <= '9'))
+                while (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') &&
+                    (c <= 'z')) || ((c >= '0') && (c <= '9')) ||
+                    (c == '_'))
                 {
                     buf += c;
-                    sourceFile.get(c);
+                    m_sourceFile.get(c);
                 }
 
-                token.setTokenName(CONSTANT);
-                token.setTokenValue(buf);
-                token.setTokenLine(currentStringNumber);
-
-                c == '\r' ? token.setIsTokenLastInLine(true) : token.setIsTokenLastInLine(false);
-
-                tokenTable.add(token);
-
-                Literal lt(buf, INTEGER_LITERAL);
-                literals.add(lt);
-
-                CS = IS_START;
-            }
-
-            break;
-        }
-        case IS_SEPARATOR:
-        {
-            std::string str(1, c);
-
-            if (separators.contains(str))
-            {
-                token.setTokenName(SEPARATOR);
-                token.setTokenValue(str);
-                token.setTokenLine(currentStringNumber);
-
-                if (sourceFile.get(c))
+                if (m_keyWords.contains(buf))
                 {
-                    sourceFile.seekg(-2, std::ios::cur);
+                    token.setName(KEYWORD);
 
-                    c == '\r' ? token.setIsTokenLastInLine(true) : token.setIsTokenLastInLine(false);
-
-                    sourceFile.get(c);
+                    if (buf == "int")
+                        specifierStack.push(buf);
                 }
                 else
-                    token.setIsTokenLastInLine(true);
-
-                tokenTable.add(token);
-
-                if (c == '(')
                 {
-                    sourceFile.get(c);
+                    if (!m_identifiers.contains(buf))
+                    {
+                        token.setName(NEW_IDENTIFIER);
 
-                    std::string msg;
+                        Identifier idn(buf);
 
-                    msg = "The closing tag for the ( in the line[" + std::to_string(currentStringNumber) + "] was not found";
-                    checkCloseTag('(', ')', c, msg, currentStringNumber);
+                        if (specifierStack.top() == "int")
+                            idn.setSpecifier(INT);
 
-                }
-                else if (c == '{')
-                {
-                    sourceFile.get(c);
+                        if (c == '(')
+                            idn.setType(FUNCTION);
+                        else
+                            idn.setType(VARIABLE);
 
-                    std::string msg;
-
-                    msg = "The closing tag for the { in the line[" + std::to_string(currentStringNumber) + "] was not found";
-                    checkCloseTag('{', '}', c, msg, currentStringNumber);
+                        m_identifiers.add(idn);
+                    }
+                    else
+                        token.setName(IDENTIFIER);
                 }
 
-                sourceFile.get(c);
+                token.setValue(buf);
+                token.setLine(currentLineNumber);
 
+                c == '\r' ? token.setIsLastInLine(true) : token.setIsLastInLine(false);
+
+                m_tokenTable.add(token);
                 CS = IS_START;
+
+                break;
             }
-            else if (operators.contains(str))
+            case IS_NUMBER:
             {
-                sourceFile.get(c);
+                std::string buf(1, c);
+                m_sourceFile.get(c);
 
-                if (c == '=')
+                if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || (c == '_'))
                 {
-                    str += c;
-                    sourceFile.get(c);
+                    CS = IS_ERROR;
+                    m_sourceFile.get(c);
+                }
+                else
+                {
+                    while ((c >= '0') && (c <= '9'))
+                    {
+                        buf += c;
+                        m_sourceFile.get(c);
+                    }
+
+                    token.setName(CONSTANT);
+                    token.setValue(buf);
+                    token.setLine(currentLineNumber);
+
+                    c == '\r' ? token.setIsLastInLine(true) : token.setIsLastInLine(false);
+
+                    m_tokenTable.add(token);
+
+                    Literal lt(buf, INTEGER_LITERAL);
+                    m_literals.add(lt);
+
+                    CS = IS_START;
                 }
 
-                c == '\r' ? token.setIsTokenLastInLine(true) : token.setIsTokenLastInLine(false);
-
-                token.setTokenName(OPERATOR);
-                token.setTokenValue(str);
-                token.setTokenLine(currentStringNumber);
-                tokenTable.add(token);
-
-                CS = IS_START;
+                break;
             }
+            case IS_SEPARATOR:
+            {
+                std::string str(1, c);
 
-            break;
-        }
-        case IS_ERROR:
-        {
-            errorHandling("Unknown character in line[" + std::to_string(currentStringNumber) + "]");
-            CS = IS_START;
+                if (m_separators.contains(str))
+                {
+                    token.setName(SEPARATOR);
+                    token.setValue(str);
+                    token.setLine(currentLineNumber);
 
-            break;
-        }
+                    if (m_sourceFile.get(c))
+                    {
+                        m_sourceFile.seekg(-2, std::ios::cur);
+
+                        c == '\r' ? token.setIsLastInLine(true) : token.setIsLastInLine(false);
+
+                        m_sourceFile.get(c);
+                    }
+                    else
+                        token.setIsLastInLine(true);
+
+                    m_tokenTable.add(token);
+
+                    if (c == '(')
+                    {
+                        m_sourceFile.get(c);
+
+                        std::string msg;
+
+                        msg = "The closing tag for the ( in the line[" + std::to_string(currentLineNumber) + "] was not found";
+                        checkCloseTag('(', ')', c, msg, currentLineNumber);
+
+                    }
+                    else if (c == '{')
+                    {
+                        m_sourceFile.get(c);
+
+                        std::string msg;
+
+                        msg = "The closing tag for the { in the line[" + std::to_string(currentLineNumber) + "] was not found";
+                        checkCloseTag('{', '}', c, msg, currentLineNumber);
+                    }
+
+                    m_sourceFile.get(c);
+
+                    CS = IS_START;
+                }
+                else if (m_operators.contains(str))
+                {
+                    m_sourceFile.get(c);
+
+                    if (c == '=')
+                    {
+                        str += c;
+                        m_sourceFile.get(c);
+                    }
+
+                    c == '\r' ? token.setIsLastInLine(true) : token.setIsLastInLine(false);
+
+                    token.setName(OPERATOR);
+                    token.setValue(str);
+                    token.setLine(currentLineNumber);
+                    m_tokenTable.add(token);
+
+                    CS = IS_START;
+                }
+
+                break;
+            }
+            case IS_ERROR:
+            {
+                errorHandling("Unknown character in line[" + std::to_string(currentLineNumber) + "]");
+                CS = IS_START;
+
+                break;
+            }
         }
     }
 
-    sourceFile.close();
-    errors.close();
+    m_sourceFile.close();
+    m_errors.close();
 }
 
 void LexicalAnalyzer::errorHandling(std::string errorText)
 {
-    success = false;
+    m_success = false;
     printErrorMessageInFile(errorText);
 }
 
@@ -301,7 +312,7 @@ void LexicalAnalyzer::printErrorMessageInFile(std::string errorText)
     errorMsg += "--------------------------------";
     errorMsg += "\n";
 
-    errors << errorMsg;
+    m_errors << errorMsg;
 }
 
 void LexicalAnalyzer::checkCloseTag(char openTag, char closeTag, char currentChar, std::string errorMsg, int currentStringNumber)
@@ -309,22 +320,24 @@ void LexicalAnalyzer::checkCloseTag(char openTag, char closeTag, char currentCha
     Token token;
     char c;
 
-    if (currentChar != closeTag)
+    if (currentChar != closeTag) // if next to the open tag symbol isn't the close tag
     {
         int offset = 1;
         int countOpenBrakets = 1;
         bool isEof = false;
 
+        // search in the source program file all close tags for opened tags
         while (countOpenBrakets != 0)
         {
-            sourceFile.get(c);
+            m_sourceFile.get(c);
 
             if (c == closeTag)
                 countOpenBrakets--;
             if (c == openTag)
                 countOpenBrakets++;
 
-            if (sourceFile.eof())
+            // if went to the end of the source program file but don't meet close tag is error
+            if (m_sourceFile.eof())
             {
                 errorHandling(errorMsg);
                 isEof = true;
@@ -334,28 +347,29 @@ void LexicalAnalyzer::checkCloseTag(char openTag, char closeTag, char currentCha
             offset++;
         }
 
+        // move to the place where started searching for the first closing tag
         if (!isEof)
-            sourceFile.seekg(-offset, std::ios::cur);
+            m_sourceFile.seekg(-offset, std::ios::cur);
     }
     else
     {
         std::string str(1, closeTag);
 
-        token.setTokenName(SEPARATOR);
-        token.setTokenValue(str);
-        token.setTokenLine(currentStringNumber);
+        token.setName(SEPARATOR);
+        token.setValue(str);
+        token.setLine(currentStringNumber);
 
-        if (sourceFile.get(c))
+        if (m_sourceFile.get(c))
         {
-            sourceFile.seekg(-2, std::ios::cur);
+            m_sourceFile.seekg(-2, std::ios::cur);
 
-            c == '\r' ? token.setIsTokenLastInLine(true) : token.setIsTokenLastInLine(false);
+            c == '\r' ? token.setIsLastInLine(true) : token.setIsLastInLine(false);
 
-            sourceFile.get(c);
+            m_sourceFile.get(c);
         }
         else
-            token.setIsTokenLastInLine(true);
+            token.setIsLastInLine(true);
 
-        tokenTable.add(token);
+        m_tokenTable.add(token);
     }
 }

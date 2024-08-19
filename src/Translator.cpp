@@ -13,71 +13,64 @@
 #include <string>
 #include <vector>
 
-Translator::Translator(StaticTable<char>& _alphabet,
-    StaticTable<std::string>& _keyWords,
-    StaticTable<std::string>& _operators,
-    StaticTable<std::string>& _separators,
-    DynamicTable<Identifier>& _identifiers,
-    DynamicTable<Literal>& _literals,
-    DynamicTable<Token>& _tokenTable,
-    std::string _programFileName,
-    std::string _errorsFileName,
-    std::string _prioritiesFileName,
-    std::string _parseTableFileName,
-    std::string _postfixFileName,
-    std::string _asmCodeFileName,
-    std::string _operandsNumberFileName) :
-    alphabet(_alphabet),
-    keyWords(_keyWords),
-    operators(_operators),
-    separators(_separators),
-    identifiers(_identifiers),
-    literals(_literals),
-    tokenTable(_tokenTable),
-    programFileName(_programFileName),
-    errorsFileName(_errorsFileName),
-    prioritiesFileName(_prioritiesFileName),
-    parseTableFileName(_parseTableFileName),
-    postfixFileName(_postfixFileName),
-    asmCodeFileName(_asmCodeFileName),
-    operandsNumberFileName(_operandsNumberFileName)
+Translator::Translator(StaticTable<char>& alphabet,
+    StaticTable<std::string>& keyWords,
+    StaticTable<std::string>& operators,
+    StaticTable<std::string>& separators,
+    DynamicTable<Identifier>& identifiers,
+    DynamicTable<Literal>& literals,
+    DynamicTable<Token>& tokenTable,
+    std::string programFileName,
+    std::string errorsFileName,
+    std::string prioritiesFileName,
+    std::string parseTableFileName,
+    std::string postfixFileName,
+    std::string asmCodeFileName,
+    std::string operandsNumberFileName) :
+    m_alphabet(alphabet),
+    m_keyWords(keyWords),
+    m_operators(operators),
+    m_separators(separators),
+    m_identifiers(identifiers),
+    m_literals(literals),
+    m_tokenTable(tokenTable),
+    m_programFileName(programFileName),
+    m_errorsFileName(errorsFileName),
+    m_prioritiesFileName(prioritiesFileName),
+    m_parseTableFileName(parseTableFileName),
+    m_postfixFileName(postfixFileName),
+    m_asmCodeFileName(asmCodeFileName),
+    m_operandsNumberFileName(operandsNumberFileName)
 {
 }
 
 void Translator::doTranslate()
 {
-    LexicalAnalyzer lexer(alphabet, keyWords, operators, separators, identifiers, literals, tokenTable, programFileName, errorsFileName);
+    LexicalAnalyzer lexer(m_alphabet, m_keyWords, m_operators, m_separators, m_identifiers, m_literals, m_tokenTable, m_programFileName, m_errorsFileName);
     lexer.doLexicalAnalysis();
 
-    ParseTable parseTable(parseTableFileName);
-    Parser parser(tokenTable, parseTable.getParseTable(), errorsFileName, prioritiesFileName, postfixFileName);
+    ParseTable parseTable(m_parseTableFileName);
+    Parser parser(m_tokenTable, parseTable.getParseTable(), m_errorsFileName, m_prioritiesFileName, m_postfixFileName);
     parser.doParse();
 
     if (parser.getResult() && lexer.getResult())
     {
         std::vector<std::string>& postfix = parser.getPostfix();
-        AssemblerGenerator generator(parser.getLabels(), postfix, identifiers, literals, asmCodeFileName, operandsNumberFileName);
-        generator.generateAssemblerInitSection();
-        generator.generateAssemblerDataSection();
-        generator.generateAssemblerCodeSection();
+        AssemblerGenerator generator(parser.getLabels(), postfix, m_identifiers, m_literals, m_asmCodeFileName, m_operandsNumberFileName);
+        generator.generateAssembler();
 
-        if (std::filesystem::exists(errorsFileName))
-            std::filesystem::remove(errorsFileName);
+        if (std::filesystem::exists(m_errorsFileName))
+            std::filesystem::remove(m_errorsFileName);
 
-        resultMsg = "Translator has been finished successfully.\nYou can observe assembler code and postfix notation in the results folder in the assembler.txt and postfix.txt files respectively.\n\n";
+        m_resultMsg = "Translator has been finished successfully.\nYou can observe assembler code and postfix notation in the results folder in the assembler.txt and postfix.txt files respectively.\n\n";
     }
     else
     {
-        if (std::filesystem::exists(postfixFileName))
-            std::filesystem::remove(postfixFileName);
-        if (std::filesystem::exists(asmCodeFileName))
-            std::filesystem::remove(asmCodeFileName);
+        if (std::filesystem::exists(m_postfixFileName))
+            std::filesystem::remove(m_postfixFileName);
+        if (std::filesystem::exists(m_asmCodeFileName))
+            std::filesystem::remove(m_asmCodeFileName);
 
-        resultMsg = "There were some lexical or syntax errors in the input program!\nDetailed information is contained in the results folder in the errors.txt file.\n\n";
+        m_resultMsg = "There were some lexical or syntax errors in the input program!\nDetailed information is contained in the results folder in the errors.txt file.\n\n";
     }
-}
-
-std::string Translator::getResultMessage()
-{
-    return resultMsg;
 }

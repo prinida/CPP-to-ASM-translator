@@ -3,42 +3,47 @@
 
 #include "DynamicTable.h"
 #include "ParseTableElement.h"
+#include "Token.h"
 
 #include <fstream>
+#include <iosfwd>
 #include <map>
+#include <string>
 #include <vector>
 
 // класс синтаксического анализатора (парсера)
 class Parser
 {
 public:
-    Parser(DynamicTable<Token>& _tokenTable,
-        std::map<unsigned int, ParseTableElement>& _parseTable,
-        std::string _errorsFile,
-        std::string _prioritiesFile,
-        std::string _postfixFile);
+    Parser(DynamicTable<Token>& tokenTable,
+        std::map<unsigned int, ParseTableElement>& parseTable,
+        std::string errorsFile,
+        std::string prioritiesFile,
+        std::string postfixFile);
     void doParse(); // выполнить синтаксический анализ
+
+    std::vector<std::string>& getPostfix() { return m_postfix; } // получить ссылку на массив с постфиксной записью
+    bool getResult() { return m_success; } // получить результат работы синтаксического анализатора (есть ошибки или нет)
+    std::vector<std::string>& getLabels() { return m_labels; }; // получить ссылку на массив меток (для генерации ассемблерного кода)
+
+private:
     void makePostfix(); // сделать постфиксную запись по инфексной 
     void errorHandling(std::string errorText, std::vector<std::string> possibleFixes); // обработка ошибки
     void printErrorMessageInFile(std::string errorText, std::vector<std::string> possibleFixes); // форматированный вывод ошибок в файл ошибок
-    std::vector<std::string>& getPostfix() { return postfix; } // получить ссылку на массив с постфиксной записью
-    bool getResult() { return success; } // получить результат работы синтаксического анализатора (есть ошибки или нет)
-    std::vector<std::string>& getLabels() { return labels; }; // получить ссылку на массив меток (для генерации ассемблерного кода)
 
-private:
-    DynamicTable<Token>& tokenTable; // таблица токенов
-    std::map<unsigned int, ParseTableElement>& parseTable; // таблица разбора
+    DynamicTable<Token>& m_tokenTable; // таблица токенов
+    std::map<unsigned int, ParseTableElement>& m_parseTable; // таблица разбора
 
-    std::ofstream errors; // файл ошибок
-    std::ofstream postfixFile; // файл постфиксной записи
+    std::ofstream m_errors; // файл ошибок
+    std::ofstream m_postfixFile; // файл постфиксной записи
 
-    std::map<std::string, int> priorities; // ассоциативный массив приоритетов операторов и ключевых слов
-    std::vector<std::string> infix; // инфиксная запись
-    std::vector<std::string> infixValue; // инфикс, содержащий значения токенов
-    std::vector<std::string> postfix; // постфиксная запись
-    std::vector<std::string> labels; // массив меток (для генерации ассемблерного кода)
+    std::map<std::string, int> m_priorities; // ассоциативный массив приоритетов операторов и ключевых слов
+    std::vector<std::string> m_infix; // инфиксная запись
+    std::vector<std::string> m_infixValue; // инфикс, содержащий значения токенов
+    std::vector<std::string> m_postfix; // постфиксная запись
+    std::vector<std::string> m_labels; // массив меток (для генерации ассемблерного кода)
 
-    bool success = true; // успешен ли синтаксический анализ
+    bool m_success = true; // успешен ли синтаксический анализ
 };
 
 #endif

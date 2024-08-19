@@ -10,26 +10,27 @@
 #include <vector>
 
 AssemblerGenerator::AssemblerGenerator(
-    std::vector<std::string>& _labels,
-    std::vector<std::string>& _postfix,
-    DynamicTable<Identifier>& _identifiers,
-    DynamicTable<Literal>& _literals,
-    std::string _asmCodeFile,
-    std::string _operandsNumberFile) :
-    labels(_labels),
-    postfix(_postfix),
-    identifiers(_identifiers),
-    literals(_literals)
+    std::vector<std::string>& labels,
+    std::vector<std::string>& postfix,
+    DynamicTable<Identifier>& identifiers,
+    DynamicTable<Literal>& literals,
+    std::string asmCodeFile,
+    std::string operandsNumberFile) :
+    m_labels(labels),
+    m_postfix(postfix),
+    m_identifiers(identifiers),
+    m_literals(literals)
 {
-    asmCode.open(_asmCodeFile);
+    m_asmCode.open(asmCodeFile);
 
     std::ifstream oprNum;
-    oprNum.open(_operandsNumberFile);
-
+    oprNum.open(operandsNumberFile);
+    
+    // checking if file with number of operator operands is open
     if (!oprNum.is_open())
     {
-        size_t num = _operandsNumberFile.find_last_of("\\");
-        std::string name = _operandsNumberFile.substr(num + 1, _operandsNumberFile.size() - num);
+        size_t num = operandsNumberFile.find_last_of("\\");
+        std::string name = operandsNumberFile.substr(num + 1, operandsNumberFile.size() - num);
 
         std::cout << "Failed to open file " << name << std::endl;
         system("pause");
@@ -39,41 +40,49 @@ AssemblerGenerator::AssemblerGenerator(
     std::string str;
     int num;
 
+    // if file is successfully opened reading the data into an associative array
     while (oprNum >> str >> num)
-        operandsNumber[str] = num;
+        m_operandsNumber[str] = num;
+}
+
+void AssemblerGenerator::generateAssembler()
+{
+    generateAssemblerInitSection();
+    generateAssemblerDataSection();
+    generateAssemblerCodeSection();
 }
 
 void AssemblerGenerator::generateAssemblerInitSection()
 {
-    asmCode << ".386\n";
-    asmCode << ".MODEL FLAT, STDCALL\n";
-    asmCode << "OPTION CASEMAP: NONE\n";
-    asmCode << "EXTERN  ExitProcess@4: PROC\n\n";
+    m_asmCode << ".386\n";
+    m_asmCode << ".MODEL FLAT, STDCALL\n";
+    m_asmCode << "OPTION CASEMAP: NONE\n";
+    m_asmCode << "EXTERN  ExitProcess@4: PROC\n\n";
 }
 
 void AssemblerGenerator::generateAssemblerDataSection()
 {
-    auto& table = identifiers.getTable();
-    asmCode << ".DATA\n";
+    auto& table = m_identifiers.getTable();
+    m_asmCode << ".DATA\n";
 
     for (auto& el : table)
     {
         if (el.getType() == VARIABLE && el.getSpecifier() == INT)
-            asmCode << el.getName() << " DD " << "?\n";
+            m_asmCode << el.getName() << " DD " << "?\n";
     }
 
-    asmCode << "r1" << " DD " << "?\n";
-    asmCode << "r2" << " DD " << "?\n\n";
+    m_asmCode << "r1" << " DD " << "?\n";
+    m_asmCode << "r2" << " DD " << "?\n\n";
 }
 
 void AssemblerGenerator::generateAssemblerCodeSection()
 {
-    makeLabelsTransitions();
+    makeLabelsTransitions(); // for every label ("m*") create transition label ("m*:")
 
-    asmCode << ".CODE\n";
-    asmCode << "MAIN PROC\n\n";
+    m_asmCode << ".CODE\n";
+    m_asmCode << "MAIN PROC\n\n";
 
-    postfix.erase(postfix.end() - 3, postfix.end());
+    m_postfix.erase(m_postfix.end() - 3, m_postfix.end()); // delete from postfix notation array "0 return [int main()]"
 
     std::string logicalOperationResult;
     std::vector<operand> operandsStack;
@@ -82,22 +91,23 @@ void AssemblerGenerator::generateAssemblerCodeSection()
 
     std::string element;
 
-    for (int k = 0; k < postfix.size(); k++)
+    // generating assembler program from postfix notation by operators template function
+    for (int k = 0; k < m_postfix.size(); k++)
     {
-        element = postfix[k];
-        auto oprNumIter = operandsNumber.find(element);
+        element = m_postfix[k];
+        auto oprNumIter = m_operandsNumber.find(element);
 
-        if (literals.contains(element) || identifiers.contains(element) || std::find(labels.begin(), labels.end(), element) != labels.end())
+        if (m_literals.contains(element) || m_identifiers.contains(element) || std::find(m_labels.begin(), m_labels.end(), element) != m_labels.end())
         {
             operand op(element, false, -1);
             operandsStack.push_back(op);
             i++;
         }
-        else if (std::find(labelsTransitions.begin(), labelsTransitions.end(), element) != labelsTransitions.end())
+        else if (std::find(m_labelsTransitions.begin(), m_labelsTransitions.end(), element) != m_labelsTransitions.end())
         {
             makeLabel(element);
         }
-        else if (oprNumIter != operandsNumber.end())
+        else if (oprNumIter != m_operandsNumber.end())
         {
             int k = (*oprNumIter).second;
             int minNumber = 1000000;
@@ -163,85 +173,85 @@ void AssemblerGenerator::generateAssemblerCodeSection()
         }
     }
 
-    asmCode << "PUSH 0\n";
-    asmCode << "CALL ExitProcess@4\n\n";
-    asmCode << "MAIN ENDP\n";
-    asmCode << "END MAIN\n";
+    m_asmCode << "PUSH 0\n";
+    m_asmCode << "CALL ExitProcess@4\n\n";
+    m_asmCode << "MAIN ENDP\n";
+    m_asmCode << "END MAIN\n";
 
-    asmCode.close();
+    m_asmCode.close();
 }
 
 void AssemblerGenerator::assignmentOperator(std::string source, std::string dest)
 {
-    asmCode << "mov" << " " << "EAX" << ", " << dest << "\n";
-    asmCode << "mov" << " " << source << ", " << "EAX" << "\n\n";
+    m_asmCode << "mov" << " " << "EAX" << ", " << dest << "\n";
+    m_asmCode << "mov" << " " << source << ", " << "EAX" << "\n\n";
 }
 
 void AssemblerGenerator::addOperator(std::string operand1, std::string operand2, std::string result)
 {
-    asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
-    asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
-    asmCode << "add" << " " << "EAX" << ", " << "EBX" << "\n";
-    asmCode << "mov" << " " << result << ", " << "EAX" << "\n\n";
+    m_asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
+    m_asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
+    m_asmCode << "add" << " " << "EAX" << ", " << "EBX" << "\n";
+    m_asmCode << "mov" << " " << result << ", " << "EAX" << "\n\n";
 }
 
 void AssemblerGenerator::subOperator(std::string operand1, std::string operand2, std::string result)
 {
-    asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
-    asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
-    asmCode << "sub" << " " << "EAX" << ", " << "EBX" << "\n";
-    asmCode << "mov" << " " << result << ", " << "EAX" << "\n\n";
+    m_asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
+    m_asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
+    m_asmCode << "sub" << " " << "EAX" << ", " << "EBX" << "\n";
+    m_asmCode << "mov" << " " << result << ", " << "EAX" << "\n\n";
 }
 
 void AssemblerGenerator::multOperator(std::string operand1, std::string operand2, std::string result)
 {
-    asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
-    asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
-    asmCode << "mul" << " " << "EBX" << "\n";
-    asmCode << "mov" << " " << result << ", " << "EAX" << "\n\n";
+    m_asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
+    m_asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
+    m_asmCode << "mul" << " " << "EBX" << "\n";
+    m_asmCode << "mov" << " " << result << ", " << "EAX" << "\n\n";
 }
 
 void AssemblerGenerator::equilOperator(std::string operand1, std::string operand2, std::string& result)
 {
-    asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
-    asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
-    asmCode << "cmp" << " " << "EAX" << ", " << "EBX" << "\n";
+    m_asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
+    m_asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
+    m_asmCode << "cmp" << " " << "EAX" << ", " << "EBX" << "\n";
     result = "jne";
 }
 
 void AssemblerGenerator::notEquilOperator(std::string operand1, std::string operand2, std::string& result)
 {
-    asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
-    asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
-    asmCode << "cmp" << " " << "EAX" << ", " << "EBX" << "\n";
+    m_asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
+    m_asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
+    m_asmCode << "cmp" << " " << "EAX" << ", " << "EBX" << "\n";
     result = "je";
 }
 
 void AssemblerGenerator::lessOperator(std::string operand1, std::string operand2, std::string& result)
 {
-    asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
-    asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
-    asmCode << "cmp" << " " << "EAX" << ", " << "EBX" << "\n";
+    m_asmCode << "mov" << " " << "EAX" << ", " << operand1 << "\n";
+    m_asmCode << "mov" << " " << "EBX" << ", " << operand2 << "\n";
+    m_asmCode << "cmp" << " " << "EAX" << ", " << "EBX" << "\n";
     result = "jnb";
 }
 
 void AssemblerGenerator::ifOperator(std::string logicalOperator, std::string label)
 {
-    asmCode << logicalOperator << " " << label << "\n";
+    m_asmCode << logicalOperator << " " << label << "\n";
 }
 
 void AssemblerGenerator::elseOperator(std::string label)
 {
-    asmCode << "jmp" << " " << label << "\n";
+    m_asmCode << "jmp" << " " << label << "\n";
 }
 
 void AssemblerGenerator::makeLabel(std::string label)
 {
-    asmCode << label << "\n";
+    m_asmCode << label << "\n";
 }
 
 void AssemblerGenerator::makeLabelsTransitions()
 {
-    for (auto& label : labels)
-        labelsTransitions.push_back(label + ":");
+    for (auto& label : m_labels)
+        m_labelsTransitions.push_back(label + ":");
 }

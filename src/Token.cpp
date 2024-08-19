@@ -1,6 +1,9 @@
+#include "Enums.h"
 #include "Token.h"
 
-std::string Token::getTokenStringName(tokenNames name)
+#include <string>
+
+std::string Token::getStringName(tokenNames name)
 {
     switch (name)
     {
@@ -12,9 +15,4 @@ std::string Token::getTokenStringName(tokenNames name)
         case SEPARATOR: return "SEPARATOR";
         default: return "";
     }
-}
-
-bool operator==(const Token& left, const Token& right)
-{
-    return left.tokenValue == right.tokenValue;
 }

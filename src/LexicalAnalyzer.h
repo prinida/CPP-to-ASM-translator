@@ -5,45 +5,46 @@
 #include "Identifier.h"
 #include "Literal.h"
 #include "StaticTable.h"
-
 #include "Token.h"
+
+#include <iosfwd>
 #include <string>
 
-// класс лексического анализа
+// class of lexical analysis
 class LexicalAnalyzer
 {
 public:
-    LexicalAnalyzer(StaticTable<char>& _alphabet,
-        StaticTable<std::string>& _keyWords,
-        StaticTable<std::string>& _operators,
-        StaticTable<std::string>& _separators,
-        DynamicTable<Identifier>& _identifiers,
-        DynamicTable<Literal>& _literals,
-        DynamicTable<Token>& _tokenTable,
+    LexicalAnalyzer(StaticTable<char>& alphabet,
+        StaticTable<std::string>& keyWords,
+        StaticTable<std::string>& operators,
+        StaticTable<std::string>& separators,
+        DynamicTable<Identifier>& identifiers,
+        DynamicTable<Literal>& literals,
+        DynamicTable<Token>& tokenTable,
         std::string programFile,
         std::string errorsFile);
-    void doLexicalAnalysis(); // функция, при вызове который осуществляется лексический анализ
-    void errorHandling(std::string errorText); // обработка ошибки
-    void printErrorMessageInFile(std::string errorText); // форматированный вывод ошибок в файл ошибок
-    bool getResult() { return success; } // получить результат работы лексического анализатора (есть ошибки или нет)
+    void doLexicalAnalysis(); // the main function that starts the lexical analysis
+
+    bool getResult() { return m_success; }
 
 private:
-    void checkCloseTag(char openTag, char closeTag, char currentChar, std::string errorMsg, int currentStringNumber); // функция, нужная для проверки на закрытие всех открытых тегов
+    void errorHandling(std::string errorText); // handling with lexical errors
+    void printErrorMessageInFile(std::string errorText); // formatted error output to errors file
+    void checkCloseTag(char openTag, char closeTag, char currentChar, std::string errorMsg, int currentStringNumber); // checking closing for opened tags
 
-    StaticTable<char>& alphabet; // статическая таблица алфавита языка
-    StaticTable<std::string>& keyWords; // статическая таблица ключевых слов языка
-    StaticTable<std::string>& operators; // статическая таблица операторов языка
-    StaticTable<std::string>& separators; // статическая таблица разделителей языка
+    StaticTable<char>& m_alphabet; // reference to a static table with the language alphabet
+    StaticTable<std::string>& m_keyWords; // reference to a static table with the language keywords
+    StaticTable<std::string>& m_operators; // reference to a static table with the language operators
+    StaticTable<std::string>& m_separators; // reference to a static table with the language separators
 
-    DynamicTable<Identifier>& identifiers; // статическая таблица идентификаторов
-    DynamicTable<Literal>& literals; // статическая таблица литеральных констант
+    DynamicTable<Identifier>& m_identifiers; // reference to the identifiers dynamic table
+    DynamicTable<Literal>& m_literals; // reference to the literals dynamic table
+    DynamicTable<Token>& m_tokenTable; // reference to the tokens dynamic table
 
-    DynamicTable<Token>& tokenTable; // таблица токенов
+    std::ifstream m_sourceFile; // the source program file
+    std::ofstream m_errors; // the errors file
 
-    std::ifstream sourceFile; // файл исходной программы
-    std::ofstream errors; // файл ошибок
-
-    bool success = true; // успех лексического анализа
+    bool m_success = true; // if the lexical analysis worked successfully
 };
 
 #endif

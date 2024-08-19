@@ -5,56 +5,57 @@
 
 #include <list>
 
-// шаблонный класс динамической таблицы
+// dynamic table template class inherited from dynamic table abstract template class
 template<class TValue>
 class DynamicTable : TemplateDynamicTable<TValue>
 {
 public:
-    bool contains(TValue _value) override; // содержит ли динамическая таблица элемент
-    void add(TValue _value) override; // добавить элемент в динамическую таблицу
-    void remove(TValue _value) override; // удалить элемент из динамической таблицы
-    TValue pop() override; //  извлечь элемент из начала таблицы (из начала списка)
-    bool isTableEmpty(); // проверить пустой ли список (таблица)
-    std::list<TValue>& getTable();
+    bool contains(TValue value) override; // does the dynamic table contain an element 
+    void add(TValue value) override; // add element to dynamic table
+    void remove(TValue value) override; // remove element from dynamic table
+    TValue pop() override; // pop element from the front of the table(from the front of the list)
+    bool isTableEmpty(); // checking if table is empty
+
+    std::list<TValue>& getTable() { return m_table; };
 
 private:
-    std::list<TValue> table; // динамическая таблица
+    std::list<TValue> m_table; // dynamic table(list)
 };
 
 template<class TValue>
-bool DynamicTable<TValue>::contains(TValue _value)
+bool DynamicTable<TValue>::contains(TValue value)
 {
     bool exist = false;
-    auto iterator = std::find(table.begin(), table.end(), _value);
+    auto iterator = std::find(m_table.begin(), m_table.end(), value);
 
-    if (iterator != table.end())
+    if (iterator != m_table.end())
         exist = true;
 
     return exist;
 }
 
 template<class TValue>
-void DynamicTable<TValue>::add(TValue _value)
+void DynamicTable<TValue>::add(TValue value)
 {
-    table.push_back(_value);
+    m_table.push_back(value);
 }
 
 template<class TValue>
-void DynamicTable<TValue>::remove(TValue _value)
+void DynamicTable<TValue>::remove(TValue value)
 {
-    auto iterator = std::find(table.begin(), table.end(), _value);
+    auto iterator = std::find(m_table.begin(), m_table.end(), value);
 
-    if (iterator != table.end())
-        table.erase(iterator);
+    if (iterator != m_table.end())
+        m_table.erase(iterator);
 }
 
 template<class TValue>
 TValue DynamicTable<TValue>::pop()
 {
-    if (!table.empty())
+    if (!m_table.empty())
     {
-        TValue element = table.front();
-        table.pop_front();
+        TValue element = m_table.front();
+        m_table.pop_front();
 
         return element;
     }
@@ -65,13 +66,7 @@ TValue DynamicTable<TValue>::pop()
 template<class TValue>
 bool DynamicTable<TValue>::isTableEmpty()
 {
-    return table.empty();
-}
-
-template<class TValue>
-std::list<TValue>& DynamicTable<TValue>::getTable()
-{
-    return table;
+    return m_table.empty();
 }
 
 #endif

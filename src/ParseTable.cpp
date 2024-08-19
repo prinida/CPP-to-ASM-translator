@@ -1,7 +1,13 @@
 #include "ParseTable.h"
+#include "ParseTableElement.h"
 
+#include <cstdlib>
 #include <fstream>
+#include <iosfwd>
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 ParseTable::ParseTable(std::string parseTableFileName)
 {
@@ -16,7 +22,7 @@ ParseTable::ParseTable(std::string parseTableFileName)
         system("pause");
         exit(0);
     }
-    
+
     ParseTableElement element;
 
     unsigned int id = 0;
@@ -67,6 +73,6 @@ ParseTable::ParseTable(std::string parseTableFileName)
 
         std::pair<unsigned int, ParseTableElement> pair(id, element);
 
-        parseTable.insert(pair);
+        m_parseTable.insert(pair);
     }
 }

@@ -9,25 +9,25 @@
 class Token
 {
 public:
-    void setTokenName(tokenNames name) { tokenName = name; };
-    void setTokenValue(std::string value) { tokenValue = value; };
-    void setTokenLine(unsigned int line) { tokenLine = line; };
-    void setIsTokenLastInLine(bool isLast) { isTokenLastInLine = isLast; };
+    std::string getStringName(tokenNames name); // получить имя токена в виде строки
 
-    tokenNames getTokenName() { return tokenName; };
-    std::string getTokenValue() { return tokenValue; };
-    unsigned int getTokenLine() { return tokenLine; };
-    bool getIsTokenLastInLine() { return isTokenLastInLine; };
+    void setName(tokenNames name) { m_name = name; };
+    void setValue(std::string value) { m_value = value; };
+    void setLine(unsigned int line) { m_line = line; };
+    void setIsLastInLine(bool isLast) { m_isLastInLine = isLast; };
 
-    std::string getTokenStringName(tokenNames name); // получить имя токена в виде строки
+    tokenNames getName() { return m_name; };
+    std::string getValue() { return m_value; };
+    unsigned int getLine() { return m_line; };
+    bool getIsLastInLine() { return m_isLastInLine; };
 
-    friend bool operator==(const Token& left, const Token& right);
+    friend bool operator==(const Token& left, const Token& right) { return left.m_value == right.m_value; };
 
 private:
-    tokenNames tokenName; // имя токена (тип токена как в enum)
-    std::string tokenValue; // значение токена (то что токен хранит)
-    unsigned int tokenLine; // строка в которой токен стоит в исходной программе
-    bool isTokenLastInLine = false; // является ли токен последним в строке
+    tokenNames m_name; // имя токена (тип токена как в enum)
+    std::string m_value; // значение токена (то что токен хранит)
+    unsigned int m_line; // строка в которой токен стоит в исходной программе
+    bool m_isLastInLine = false; // является ли токен последним в строке
 };
 
 #endif TOKEN_H
