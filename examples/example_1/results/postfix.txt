@@ -1,0 +1,1 @@
+g 11 20 * = int g 11 20 * 1 + 1 - == m1 if b 15 14 - = int m2 else m1: a 172 = int m2: 0 return [int main()] 

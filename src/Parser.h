@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-// класс синтаксического анализатора (парсера)
+// syntax analysis class(parser)
 class Parser
 {
 public:
@@ -20,30 +20,30 @@ public:
         std::string errorsFile,
         std::string prioritiesFile,
         std::string postfixFile);
-    void doParse(); // выполнить синтаксический анализ
+    void doParse(); // main function for perfoming syntax analysis
 
-    std::vector<std::string>& getPostfix() { return m_postfix; } // получить ссылку на массив с постфиксной записью
-    bool getResult() { return m_success; } // получить результат работы синтаксического анализатора (есть ошибки или нет)
-    std::vector<std::string>& getLabels() { return m_labels; }; // получить ссылку на массив меток (для генерации ассемблерного кода)
+    std::vector<std::string>& getPostfix() { return m_postfix; }
+    bool getResult() { return m_success; }
+    std::vector<std::string>& getLabels() { return m_labels; };
 
 private:
-    void makePostfix(); // сделать постфиксную запись по инфексной 
-    void errorHandling(std::string errorText, std::vector<std::string> possibleFixes); // обработка ошибки
-    void printErrorMessageInFile(std::string errorText, std::vector<std::string> possibleFixes); // форматированный вывод ошибок в файл ошибок
+    void makePostfix(); // make postfix notation from infix
+    void errorHandling(std::string errorText, std::vector<std::string> possibleFixes); // handling with syntax errors
+    void printErrorMessageInFile(std::string errorText, std::vector<std::string> possibleFixes); // formatted error output to errors file
 
-    DynamicTable<Token>& m_tokenTable; // таблица токенов
-    std::map<unsigned int, ParseTableElement>& m_parseTable; // таблица разбора
+    DynamicTable<Token>& m_tokenTable; // reference to the tokens dynamic table
+    std::map<unsigned int, ParseTableElement>& m_parseTable; // reference to the parse table
 
-    std::ofstream m_errors; // файл ошибок
-    std::ofstream m_postfixFile; // файл постфиксной записи
+    std::ofstream m_errors; // the errors file
+    std::ofstream m_postfixFile; // the postfix notation file
 
-    std::map<std::string, int> m_priorities; // ассоциативный массив приоритетов операторов и ключевых слов
-    std::vector<std::string> m_infix; // инфиксная запись
-    std::vector<std::string> m_infixValue; // инфикс, содержащий значения токенов
-    std::vector<std::string> m_postfix; // постфиксная запись
-    std::vector<std::string> m_labels; // массив меток (для генерации ассемблерного кода)
+    std::map<std::string, int> m_priorities; // associative array for pairs "operator or keyword - priority"
+    std::vector<std::string> m_infix; // infix notation
+    std::vector<std::string> m_infixValue; // infix notation with token's values
+    std::vector<std::string> m_postfix; // postfix notation
+    std::vector<std::string> m_labels; // labels array for generating assembly code
 
-    bool m_success = true; // успешен ли синтаксический анализ
+    bool m_success = true; // if the parser worked successfully
 };
 
 #endif

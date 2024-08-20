@@ -13,6 +13,7 @@ ParseTable::ParseTable(std::string parseTableFileName)
 {
     std::ifstream parseTableFile(parseTableFileName);
 
+    // checking the parse table file is opened
     if (!parseTableFile.is_open())
     {
         size_t num = parseTableFileName.find_last_of("\\");
@@ -33,11 +34,13 @@ ParseTable::ParseTable(std::string parseTableFileName)
     bool stack;
     bool error;
 
+    // read all rows in parse table from file
     while (parseTableFile >> terminal)
     {
         id++;
         terminals.clear();
 
+        // read a terminals (several or only one string value)
         while (true)
         {
             terminal.erase(terminal.find("'"), 1);
@@ -60,6 +63,7 @@ ParseTable::ParseTable(std::string parseTableFileName)
             parseTableFile >> terminal;
         }
 
+        // read remaining columns of parse table
         parseTableFile >> jump;
         parseTableFile >> accept;
         parseTableFile >> stack;

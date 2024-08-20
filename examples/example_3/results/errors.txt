@@ -1,0 +1,11 @@
+--------------------------------
+Error type: syntax error.
+Error text: Parser has detected an error in line[3].
+Possible corrections: 
+1. *
+2. ,
+3. ;
+4. )
+5. +
+6. -
+--------------------------------

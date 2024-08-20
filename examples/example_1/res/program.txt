@@ -1,0 +1,16 @@
+int main()
+{
+    int g = 11 * 20;
+    
+    if (g == 11 * 20 + 1 - 1)
+    {
+        int b = 15 - 14;
+    }
+    else
+    {
+        int a = 172;
+    }
+	
+
+    return 0;
+}

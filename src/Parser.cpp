@@ -28,6 +28,7 @@ Parser::Parser(
     std::ifstream prFile;
     prFile.open(prioritiesFile);
 
+    // checking the priorities file is opened
     if (!prFile.is_open())
     {
         size_t num = prioritiesFile.find_last_of("\\");
@@ -41,6 +42,7 @@ Parser::Parser(
     std::string str;
     int priority;
 
+    // if file is successfully opened reading the data into an associative array
     while (prFile >> str >> priority)
         m_priorities[str] = priority;
 }
@@ -60,6 +62,7 @@ void Parser::doParse()
 
     int count = 0;
 
+    // go through the token table and checking tokens against the parsing table
     while (!m_tokenTable.isTableEmpty() && id != 0)
     {
         element = m_parseTable[id];
@@ -116,6 +119,7 @@ void Parser::doParse()
             prevToken = token;
             token = m_tokenTable.pop();
 
+            // add special symbol "&&&" between identical tokens to remove repetitions from infix notation but not identical tokens 
             if (token.getValue() == prevToken.getValue())
             {
                 m_infix.push_back("&&&");
@@ -124,9 +128,11 @@ void Parser::doParse()
         }
     }
 
+    // remove all repetitions from infix notation
     m_infix.erase(std::unique(m_infix.begin(), m_infix.end()), m_infix.end());
     m_infixValue.erase(std::unique(m_infixValue.begin(), m_infixValue.end()), m_infixValue.end());
 
+    // remove all special symbols "&&&" from infix notation
     auto iterInfix = std::find(m_infix.begin(), m_infix.end(), "&&&");
     auto iterInfixValue = std::find(m_infixValue.begin(), m_infixValue.end(), "&&&");
 
@@ -153,6 +159,7 @@ void Parser::makePostfix()
     std::stack<std::string> stack;
     std::string curr;
 
+    // go through infix notation and generate postfix notation with labels for assembler transitions
     for (int k = 4; k < m_infix.size(); k++)
     {
         curr = m_infix[k];

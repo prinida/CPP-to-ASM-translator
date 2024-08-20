@@ -5,6 +5,7 @@
 
 bool ParseTableElement::isTerminalsContain(Token token)
 {
+    // iterate through all terminals in a row to find matches with the token name or value
     for (int i = 0; i < m_terminals.size(); i++)
     {
         std::string currentTerm = m_terminals[i];

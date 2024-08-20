@@ -1,0 +1,14 @@
+--------------------------------
+Error type: lexical error.
+Error text: Unknown character in line[7].
+--------------------------------
+--------------------------------
+Error type: syntax error.
+Error text: Parser has detected an error in line[2].
+Possible corrections: 
+1. {
+2. if
+3. int
+4. IDENTIFIER
+5. return
+--------------------------------

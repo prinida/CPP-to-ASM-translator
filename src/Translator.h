@@ -9,7 +9,7 @@
 
 #include <string>
 
-// класс трансл€тора
+// translator class - main class responsible for all phases of translation subset of CPP to Assembler
 class Translator
 {
 public:
@@ -28,29 +28,29 @@ public:
         std::string asmCodeFileName,
         std::string operandsNumberFileName);
 
-    void doTranslate(); // выполнить трансл€цию
+    void doTranslate(); // perform translation
 
-    std::string getResultMessage() { return m_resultMsg; }; // получить сообщение с результатом работы трансл€тора
+    std::string getResultMessage() { return m_resultMsg; };
 
 private:
-    StaticTable<char>& m_alphabet; // статическа€ таблица алфавита €зыка
-    StaticTable<std::string>& m_keyWords; // статическа€ таблица ключевых слов €зыка
-    StaticTable<std::string>& m_operators; // статическа€ таблица операторов €зыка
-    StaticTable<std::string>& m_separators; // статическа€ таблица разделителей €зыка
+    StaticTable<char>& m_alphabet; // reference to a static table with the language alphabet
+    StaticTable<std::string>& m_keyWords; // reference to a static table with the language keywords
+    StaticTable<std::string>& m_operators; // reference to a static table with the language operators
+    StaticTable<std::string>& m_separators; // reference to a static table with the language separators
 
-    DynamicTable<Identifier>& m_identifiers; // статическа€ таблица идентификаторов
-    DynamicTable<Literal>& m_literals; // статическа€ таблица литеральных констант
-    DynamicTable<Token>& m_tokenTable; // таблица токенов
+    DynamicTable<Identifier>& m_identifiers; // reference to the identifiers dynamic table
+    DynamicTable<Literal>& m_literals; // reference to the literals dynamic table
+    DynamicTable<Token>& m_tokenTable; // reference to the tokens dynamic table
 
-    std::string m_programFileName; // им€ файла программы
-    std::string m_errorsFileName; // им€ файла ошибок
-    std::string m_prioritiesFileName; // им€ файла приоритетов операторов и ключевых слов
-    std::string m_parseTableFileName; // им€ файла таблицы разбора
-    std::string m_postfixFileName; // им€ файла постфиксной записи
-    std::string m_asmCodeFileName; // им€ файла ассемблерного кода
-    std::string m_operandsNumberFileName; // им€ файла, в котором хранитс€ количество операндов у оператора
+    std::string m_programFileName; // source program file name
+    std::string m_errorsFileName; // errors file name
+    std::string m_prioritiesFileName; // operator and keyword priorities file name
+    std::string m_parseTableFileName; // parse table file name
+    std::string m_postfixFileName; // postfix notation file name
+    std::string m_asmCodeFileName; // assembler program file name
+    std::string m_operandsNumberFileName; // the name of the file that stores the number of operands for the operator
 
-    std::string m_resultMsg; // сообщение, содержащее результат работы трансл€тора
+    std::string m_resultMsg; // a message containing the result of the translator's work
 };
 
 #endif

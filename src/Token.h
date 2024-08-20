@@ -5,11 +5,11 @@
 
 #include <string>
 
-// класс токена
+// token class (filled by lexical analyzer and used by parser)
 class Token
 {
 public:
-    std::string getStringName(tokenNames name); // получить имя токена в виде строки
+    std::string getStringName(tokenNames name); // get token name as string
 
     void setName(tokenNames name) { m_name = name; };
     void setValue(std::string value) { m_value = value; };
@@ -24,10 +24,10 @@ public:
     friend bool operator==(const Token& left, const Token& right) { return left.m_value == right.m_value; };
 
 private:
-    tokenNames m_name; // имя токена (тип токена как в enum)
-    std::string m_value; // значение токена (то что токен хранит)
-    unsigned int m_line; // строка в которой токен стоит в исходной программе
-    bool m_isLastInLine = false; // является ли токен последним в строке
+    tokenNames m_name; // token name(token type in enum)
+    std::string m_value; // token value (what the token stores)
+    unsigned int m_line; // line in which token appears in source program
+    bool m_isLastInLine = false; // is the token the last one in the line
 };
 
 #endif TOKEN_H

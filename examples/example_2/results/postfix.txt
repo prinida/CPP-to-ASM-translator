@@ -1,0 +1,1 @@
+a 10 15 * = int a 10 15 * == m1 if a 11 = 15 15 == m2 if b 152 = int b 8 * 5 - a 171 * 670 - == m3 if ba 180 = int m3: m2: 18 1 * 10 3 * < m4 if ca 250000 = int m5 else m4: d 100 = int d 100 != m6 if d 300 = m7 else m6: d 500 = m7: m5: e 50 = int m8 else m1: g 100 = int m8: f 175 = int 0 return [int main()] 

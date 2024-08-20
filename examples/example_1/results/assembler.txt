@@ -1,0 +1,61 @@
+.386
+.MODEL FLAT, STDCALL
+OPTION CASEMAP: NONE
+EXTERN  ExitProcess@4: PROC
+
+.DATA
+g DD ?
+b DD ?
+a DD ?
+r1 DD ?
+r2 DD ?
+
+.CODE
+MAIN PROC
+
+mov EAX, 11
+mov EBX, 20
+mul EBX
+mov r1, EAX
+
+mov EAX, r1
+mov g, EAX
+
+mov EAX, 11
+mov EBX, 20
+mul EBX
+mov r1, EAX
+
+mov EAX, r1
+mov EBX, 1
+add EAX, EBX
+mov r1, EAX
+
+mov EAX, r1
+mov EBX, 1
+sub EAX, EBX
+mov r1, EAX
+
+mov EAX, g
+mov EBX, r1
+cmp EAX, EBX
+jne m1
+mov EAX, 15
+mov EBX, 14
+sub EAX, EBX
+mov r1, EAX
+
+mov EAX, r1
+mov b, EAX
+
+jmp m2
+m1:
+mov EAX, 172
+mov a, EAX
+
+m2:
+PUSH 0
+CALL ExitProcess@4
+
+MAIN ENDP
+END MAIN

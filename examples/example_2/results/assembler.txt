@@ -1,0 +1,129 @@
+.386
+.MODEL FLAT, STDCALL
+OPTION CASEMAP: NONE
+EXTERN  ExitProcess@4: PROC
+
+.DATA
+a DD ?
+b DD ?
+ba DD ?
+ca DD ?
+d DD ?
+e DD ?
+g DD ?
+f DD ?
+r1 DD ?
+r2 DD ?
+
+.CODE
+MAIN PROC
+
+mov EAX, 10
+mov EBX, 15
+mul EBX
+mov r1, EAX
+
+mov EAX, r1
+mov a, EAX
+
+mov EAX, 10
+mov EBX, 15
+mul EBX
+mov r1, EAX
+
+mov EAX, a
+mov EBX, r1
+cmp EAX, EBX
+jne m1
+mov EAX, 11
+mov a, EAX
+
+mov EAX, 15
+mov EBX, 15
+cmp EAX, EBX
+jne m2
+mov EAX, 152
+mov b, EAX
+
+mov EAX, b
+mov EBX, 8
+mul EBX
+mov r1, EAX
+
+mov EAX, r1
+mov EBX, 5
+sub EAX, EBX
+mov r1, EAX
+
+mov EAX, a
+mov EBX, 171
+mul EBX
+mov r2, EAX
+
+mov EAX, r2
+mov EBX, 670
+sub EAX, EBX
+mov r2, EAX
+
+mov EAX, r1
+mov EBX, r2
+cmp EAX, EBX
+jne m3
+mov EAX, 180
+mov ba, EAX
+
+m3:
+m2:
+mov EAX, 18
+mov EBX, 1
+mul EBX
+mov r1, EAX
+
+mov EAX, 10
+mov EBX, 3
+mul EBX
+mov r2, EAX
+
+mov EAX, r1
+mov EBX, r2
+cmp EAX, EBX
+jnb m4
+mov EAX, 250000
+mov ca, EAX
+
+jmp m5
+m4:
+mov EAX, 100
+mov d, EAX
+
+mov EAX, d
+mov EBX, 100
+cmp EAX, EBX
+je m6
+mov EAX, 300
+mov d, EAX
+
+jmp m7
+m6:
+mov EAX, 500
+mov d, EAX
+
+m7:
+m5:
+mov EAX, 50
+mov e, EAX
+
+jmp m8
+m1:
+mov EAX, 100
+mov g, EAX
+
+m8:
+mov EAX, 175
+mov f, EAX
+
+PUSH 0
+CALL ExitProcess@4
+
+MAIN ENDP
+END MAIN

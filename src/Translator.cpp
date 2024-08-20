@@ -40,25 +40,29 @@ Translator::Translator(StaticTable<char>& alphabet,
     m_parseTableFileName(parseTableFileName),
     m_postfixFileName(postfixFileName),
     m_asmCodeFileName(asmCodeFileName),
-    m_operandsNumberFileName(operandsNumberFileName)
-{
-}
+    m_operandsNumberFileName(operandsNumberFileName) {}
 
 void Translator::doTranslate()
 {
+    // perform lexical analysis, fill errors file in errors case
     LexicalAnalyzer lexer(m_alphabet, m_keyWords, m_operators, m_separators, m_identifiers, m_literals, m_tokenTable, m_programFileName, m_errorsFileName);
     lexer.doLexicalAnalysis();
 
+    // get parse table
     ParseTable parseTable(m_parseTableFileName);
+
+    // perform syntactic analysis, fill postfix file in success case, else fill errors file
     Parser parser(m_tokenTable, parseTable.getParseTable(), m_errorsFileName, m_prioritiesFileName, m_postfixFileName);
     parser.doParse();
 
+    // if lexer and parser were worked successfully generate assembler file and set successful message else set errors message
     if (parser.getResult() && lexer.getResult())
     {
         std::vector<std::string>& postfix = parser.getPostfix();
         AssemblerGenerator generator(parser.getLabels(), postfix, m_identifiers, m_literals, m_asmCodeFileName, m_operandsNumberFileName);
         generator.generateAssembler();
 
+        // remove not needed files
         if (std::filesystem::exists(m_errorsFileName))
             std::filesystem::remove(m_errorsFileName);
 
@@ -66,6 +70,7 @@ void Translator::doTranslate()
     }
     else
     {
+        // remove not needed files
         if (std::filesystem::exists(m_postfixFileName))
             std::filesystem::remove(m_postfixFileName);
         if (std::filesystem::exists(m_asmCodeFileName))

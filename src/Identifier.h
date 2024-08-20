@@ -22,9 +22,9 @@ public:
     friend bool operator==(const Identifier& left, const Identifier& right) { return left.m_name == right.m_name; };
 
 private:
-    std::string m_name; // identifier's name
-    typeSpecifiers m_specifier; // identifier's specifier
-    identifiersTypes m_type; // identifier's type
+    std::string m_name; // identifier name
+    typeSpecifiers m_specifier; // identifier specifier
+    identifiersTypes m_type; // identifier type
 };
 
 #endif

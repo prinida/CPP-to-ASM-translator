@@ -5,6 +5,7 @@
 
 std::string Token::getStringName(tokenNames name)
 {
+    //switch by tokenNames enum
     switch (name)
     {
         case KEYWORD: return "KEYWORD";

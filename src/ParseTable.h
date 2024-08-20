@@ -6,16 +6,16 @@
 #include <map>
 #include <string>
 
-// класс таблицы разбора
+// parse table class (for syntax analysis)
 class ParseTable
 {
 public:
-    ParseTable(std::string parseTableFileName); // конструктор для считывания файла таблицы разбора
+    ParseTable(std::string parseTableFileName); // reading a parse table from a file and writing it to an associative array
 
-    std::map<unsigned int, ParseTableElement>& getParseTable() { return m_parseTable; }; // получить ссылку на таблицу разбора
+    std::map<unsigned int, ParseTableElement>& getParseTable() { return m_parseTable; };
 
 private:
-    std::map<unsigned int, ParseTableElement> m_parseTable; // таблица разбора
+    std::map<unsigned int, ParseTableElement> m_parseTable; // associative array for pairs "id - parse table element(terminals, jump, accept, stack, error)"
 };
 
 #endif

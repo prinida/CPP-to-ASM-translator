@@ -20,8 +20,8 @@ public:
     friend bool operator == (const Literal& left, const Literal& right) { return left.m_name == right.m_name; };
 
 private:
-    std::string m_name; // literal's name
-    literalsType m_type; // literal's type
+    std::string m_name; // literal name
+    literalsType m_type; // literal type
 };
 
 #endif
