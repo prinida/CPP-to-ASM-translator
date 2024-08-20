@@ -30,7 +30,7 @@ Assembler code generator uses postfix notation.
   + *operatorsOperandsNumber.txt* - contains the number of operands for operators and keywords
   + *parseTable.txt* - contains parse table intended for syntax analysis
   + *priorities.txt* - contains operator and keyword priorities
-  + **program.txt** - contains source program on *C++* language
+  + **program.txt** - contains source program on **C++** language
   + *separators.txt* - contains all separators in language
 
 + *src* folder contains all source code files("*.h", "*.cpp")
@@ -38,7 +38,7 @@ Assembler code generator uses postfix notation.
 + *CMakeLists.txt* contains code on cmake language to build project
 
 Also *results* folder that generated after executation *exe* file contains:
-+ *assembler.txt* - contains assembler program to run on MASM (generated if the program is successfully executed)
++ *assembler.txt* - contains assembler program to run on **MASM** (generated if the program is successfully executed)
 + *postfix.txt* - contains postfix notation of program (generated if the program is successfully executed)
 + *errors.txt* - contains syntax and lexical errors (generated in case of program execution failure)
 
@@ -50,14 +50,14 @@ Also *results* folder that generated after executation *exe* file contains:
 2. Go to the *build* folder `cd build`
 3. Use this command `cmake -G "Visual Studio 17 2022" ..` to generate project and needed cmake files in *build* folder. You can use other compilers instead of "Visual Studio 17 2022", detailed list of compilers you can observe after entering command `cmake --help` in section "Generators"
 4. To build project you need enter command `cmake --build .` or use your integrated development environment(IDE) or use selected compiler
-5. Exe file located in path "build\bin\Debug\"
+5. *exe* file located in path "build\bin\Debug\"
 6. The results of the program can be found in the *results* folder
 
 ## Simple example
 
-More complex examples can be found in the folder *examples*.
+**More complex examples can be found in the folder *examples*.**
 
-**Source program**:
+**Source program** (located in *res* folder in *program.txt* file):
 
 ``` cpp
 int main()
@@ -78,12 +78,12 @@ int main()
 }
 ```
 
-**Postfix notation**
+**Postfix notation** (located in *results* folder in *postfix.txt* file):
 ```
 g 11 20 * = int g 11 20 * 1 + 1 - == m1 if b 15 14 - = int m2 else m1: a 172 = int m2: 0 return [int main()] 
 ```
 
-**Assembler code**
+**Assembler code** (located in *results* folder in *assembler.txt* file):
 ```asm
 .386
 .MODEL FLAT, STDCALL
