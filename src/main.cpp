@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <limits>
 #include <string>
 
 int main(int argc, char** argv)
@@ -58,7 +59,10 @@ int main(int argc, char** argv)
     // print translation result (success or errors)
     std::cout << translator.getResultMessage() << std::endl;
 
-    system("pause");
+    // pause console
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.get();
 
     return 0;
 }
