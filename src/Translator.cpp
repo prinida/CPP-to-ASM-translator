@@ -66,7 +66,8 @@ void Translator::doTranslate()
         if (std::filesystem::exists(m_errorsFileName))
             std::filesystem::remove(m_errorsFileName);
 
-        m_resultMsg = "Translator has been finished successfully.\nYou can observe assembler code and postfix notation in the results folder in the assembler.txt and postfix.txt files respectively.\n\n";
+        m_resultMsg = "Translator has been finished successfully."
+            "\nYou can observe assembler code and postfix notation in the results folder in the assembler.txt and postfix.txt files respectively.\n\n";
     }
     else
     {
@@ -76,6 +77,7 @@ void Translator::doTranslate()
         if (std::filesystem::exists(m_asmCodeFileName))
             std::filesystem::remove(m_asmCodeFileName);
 
-        m_resultMsg = "There were some lexical or syntax errors in the input program!\nDetailed information is contained in the results folder in the errors.txt file.\n\n";
+        m_resultMsg = "There were some lexical or syntax errors in the input program!"
+            "\nDetailed information is contained in the results folder in the errors.txt file.\n\n";
     }
 }
